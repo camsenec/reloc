@@ -5,12 +5,12 @@ from .models import EdgeServer, Client
 class EdgeServerSerializer(serializers.ModelSerializer):
     class Meta:
         model = EdgeServer
-        fields = ('x','y', 'capacity', 'remain', 'clients')
+        fields = ('application_id', 'server_id', 'x','y', 'capacity', 'remain')
 
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
-        fields = ('x','y')
+        fields = ('application_id', 'client_id', 'x', 'y')
 
 
 '''

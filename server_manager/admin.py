@@ -4,5 +4,6 @@ from django.contrib import admin
 from .models import EdgeServer, Client
 
 
+admin.site.register(Application)
 admin.site.register(EdgeServer)
 admin.site.register(Client)
