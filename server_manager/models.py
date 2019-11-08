@@ -2,9 +2,22 @@ from django.db import models
 
 # Create your models here.
 
+class Area(models.Model):
+    SIZE_CHOICES = (
+        (1, "SMALL"),
+        (2, "MEDIUM"),
+        (3, "BIG"),
+    )
+    size = models.IntegerField(choices= SIZE_CHOICES)
+    avg_n_cooperative_server = models.IntegerField()
+
+    def __str__(self):
+        return str(self.size);
+
 class Application(models.Model):
     #id = models.AutoField(primary_key=True)
     name = models.CharField(max_length = 128)
+    area = models.ForeignKey(Area, on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.id)
@@ -19,6 +32,7 @@ class EdgeServer(models.Model):
     y = models.FloatField()
     capacity = models.FloatField()
     remain = models.FloatField()
+    cluster_id = models.FloatField(default=0)
 
     def __str__(self):
         return str(self.id)
@@ -34,7 +48,6 @@ class Client(models.Model):
     home = models.ForeignKey(EdgeServer, on_delete=models.CASCADE, blank = True, null = True)
     #EdgeServerにClientがぶら下がる
     #serverを外部キーにして参照
-
 
     def __str__(self):
         return str(self.id)
