@@ -1,11 +1,16 @@
 from rest_framework import serializers
-from .models import SpinGlassField
+from .models import EdgeServer, Client
 
 
 class EdgeServerSerializer(serializers.ModelSerializer):
     class Meta:
         model = EdgeServer
         fields = ('x','y', 'capacity', 'remain', 'clients')
+
+class ClientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Client
+        fields = ('x','y')
 
 
 '''
