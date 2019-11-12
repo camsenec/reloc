@@ -2,6 +2,16 @@ from django.db import models
 
 # Create your models here.
 
+class Cluster(models.Model):
+    application_id = models.IntegerField()
+    cluster_id = models.IntegerField()
+    centroid_x = models.FloatField()
+    centroid_y = models.FloatField()
+
+    def __str__(self):
+        return str(self.cluster_id)
+
+
 class Area(models.Model):
     SIZE_CHOICES = (
         (1, "SMALL"),
@@ -16,8 +26,9 @@ class Area(models.Model):
 
 class Application(models.Model):
     #id = models.AutoField(primary_key=True)
+    application_id = models.IntegerField(default=1)
     name = models.CharField(max_length = 128)
-    area = models.ForeignKey(Area, on_delete=models.CASCADE)
+    area = models.ForeignKey(Area, on_delete=models.CASCADE, default = 1)
 
     def __str__(self):
         return str(self.id)
@@ -26,13 +37,14 @@ class EdgeServer(models.Model):
     class Meta:
         unique_together = (('server_id', 'application_id'))
 
-    application_id = models.IntegerField(default=0)
-    server_id = models.IntegerField(default=0)
+    application_id = models.IntegerField(default=1)
+    server_id = models.IntegerField(default=1)
+
     x = models.FloatField()
     y = models.FloatField()
     capacity = models.FloatField()
     remain = models.FloatField()
-    cluster_id = models.FloatField(default=0)
+    cluster_id = models.IntegerField(default=1)
 
     def __str__(self):
         return str(self.id)
@@ -41,8 +53,9 @@ class Client(models.Model):
     class Meta:
         unique_together = (('client_id', 'application_id'))
 
-    application_id = models.IntegerField(default=0)
-    client_id = models.IntegerField(default=0)
+    application_id = models.IntegerField(default=1)
+    client_id = models.IntegerField(default=1)
+
     x = models.FloatField()
     y = models.FloatField()
     home = models.ForeignKey(EdgeServer, on_delete=models.CASCADE, blank = True, null = True)
@@ -51,6 +64,9 @@ class Client(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+## Simulation陽
+
 
 '''
 Yser

@@ -18,16 +18,30 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
     serializer_class = EdgeServerSerializer
 
     @list_route(methods=["post"])
-    def post(self, requeset):
-        application_id = request.POST['application_id'] #シミュレーター上では指定
-        server_id = EdgeServer.objects.raw('SELECT MAX(server_id) FROM edge_server') + 1 #server_idは各アプリケーションで指定
+    def post(self, request):
+        print("request", request.POST)
+
+        application_id = request.GET['application_id'] #シミュレーター上では指定
+
+        if EdgeServer.objects.all().count() == 0:
+            server_id = 1
+        else:
+            server_id = EdgeServer.objects.all().aggregate(Max('server_id'))['server_id__max'] + 1 #server_idは各アプリケーションで指定
+
+        #データの生成
         x = request.POST['x']
         y = request.POST['y']
         capacity = request.POST['capacity']
+        server = EdgeServer.objects.create(application_id = application_id, server_id = server_id, x = x, y = y, capacity = capacity, remain = capacity)
 
-        server = EdgeServer.objects.create(application_id = applicatin_id, server_id = server_id, x = x, y = y, capacity = capacity, remain = capacity)
-        server.save()
-        return Response(status=status.HTTP_200_OK)
+        #DEBUG
+        print("now  clustering")
+
+        allocator.clustering(application_id)
+
+        serializer = self.get_serializer(server)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @list_route(methods=["get"])
     def get(self, request):
@@ -36,6 +50,12 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         server = self.queryset.get(Q(application_id = application_id), Q(server_id = server_id))
         serializer = self.get_serializer(server)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=["delete"])
+    def delete_all(self, request):
+        application_id = request.GET["application_id"]
+        EdgeServer.objects.filter(application_id=application_id).delete()
+        return Response(status=status.HTTP_200_OK)
 
     def list(self, request):
         serializer = self.get_serializer(self.queryset, many = True)
@@ -50,17 +70,27 @@ class ClientViewSet(viewsets.ModelViewSet):
 
     @list_route(methods=["post"])
     def post(self, request):
-        application_id = request.POST['application_id'] #シミュレーター上では指定
-        client_id = Client.objects.all().aggregate(Max('client_id'))['client_id__max'] + 1
+        application_id = request.GET['application_id'] #シミュレーター上では指定
+
+        if  Client.objects.all().count() == 0:
+            client_id = 1
+        else:
+            client_id = Client.objects.all().aggregate(Max('client_id'))['client_id__max'] + 1
         print('client_id', client_id)
         x = request.POST['x']
         y = request.POST['y']
 
         client = Client.objects.create(application_id = application_id, client_id = client_id, x = x, y = y)
+
+        #home serverの割り当て
+        new_home_server_id = allocator.allocate(application_id, client_id)
+        client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
 
         serializer = self.get_serializer(client)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
     @list_route(methods=["get"])
     def get(self, request, pk = None):
@@ -75,13 +105,41 @@ class ClientViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(clients, many = True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    #定期的な位置更新
+    @list_route(methods=["post"])
+    def update_location(self, request):
+        application_id = request.GET["application_id"]
+        client_id = request.GET["client_id"]
+        client = self.queryset.get(Q(application_id = application_id), Q(client_id = client_id))
+        x = request.POST['x']
+        y = request.POST['y']
+
+        client.x = x
+        client.y = y
+        client.save()
+
+        serializer = self.get_serializer(client)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    #定期的なhome serverの更新
     @list_route(methods=["put"])
-    def update_home_server(self, request):
+    def update_home(self, request):
         application_id = request.GET["application_id"]
         client_id = request.GET["client_id"]
         client = self.queryset.get(Q(application_id = application_id), Q(client_id = client_id))
 
+        '''
+        1. 該当クライアントのデータを取得
+        2. 現在位置をもとに, home serverを更新
+        '''
+
         #application_idの指定により, 領域の大きさ（Kの大きさ）をテーブルより取得
         #一旦ランダムに配置
-        new_home_server_id = server_clustering(application_id, client_id)
-        client.home = EdgeServer.objects.get(client_id = new_home_server_id)
+        new_home_server_id = allocator.allocate(application_id, client_id) #テスト必要
+        print("allocated : ", new_home_server_id)
+
+        client.home = EdgeServer.objects.get(server_id = new_home_server_id)
+        client.save()
+
+        serializer = self.get_serializer(client)
+        return Response(serializer.data, status=status.HTTP_200_OK)
