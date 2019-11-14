@@ -17,6 +17,7 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
     queryset = EdgeServer.objects.all()
     serializer_class = EdgeServerSerializer
 
+    #エッジサーバーから呼び出されるAPI
     @list_route(methods=["post"])
     def post(self, request):
         print("request", request.POST)
@@ -34,15 +35,27 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         capacity = request.POST['capacity']
         server = EdgeServer.objects.create(application_id = application_id, server_id = server_id, x = x, y = y, capacity = capacity, remain = capacity)
 
-        #DEBUG
-        print("now  clustering")
-
         allocator.clustering(application_id)
 
         serializer = self.get_serializer(server)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    #定期的な位置更新
+    @list_route(methods=["put"])
+    def update_remain(self, request):
+        application_id = request.GET["application_id"]
+        server_id = request.GET["server_id"]
+        server = self.queryset.get(Q(application_id = application_id), Q(server_id = server_id))
+        remain = request.POST["remain"]
+
+        server.remain
+        server.save()
+
+        serializer = self.get_serializer(server)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    #データベース管理用API
     @list_route(methods=["get"])
     def get(self, request):
         application_id = request.GET["application_id"]
@@ -68,6 +81,7 @@ class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
 
+    #クライアントの登録
     @list_route(methods=["post"])
     def post(self, request):
         application_id = request.GET['application_id'] #シミュレーター上では指定
@@ -90,23 +104,8 @@ class ClientViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(client)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-
-    @list_route(methods=["get"])
-    def get(self, request, pk = None):
-        application_id = request.GET["application_id"]
-        client_id = request.GET["client_id"]
-        client = self.queryset.get(Q(application_id = application_id), Q(client_id = client_id))
-        serializer = self.get_serializer(client)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def list(self, request):
-        clients = Client.objects.all()
-        serializer = self.get_serializer(clients, many = True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     #定期的な位置更新
-    @list_route(methods=["post"])
+    @list_route(methods=["put"])
     def update_location(self, request):
         application_id = request.GET["application_id"]
         client_id = request.GET["client_id"]
@@ -143,3 +142,23 @@ class ClientViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(client)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    #データベース管理用API
+    @list_route(methods=["get"])
+    def get(self, request, pk = None):
+        application_id = request.GET["application_id"]
+        client_id = request.GET["client_id"]
+        client = self.queryset.get(Q(application_id = application_id), Q(client_id = client_id))
+        serializer = self.get_serializer(client)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def list(self, request):
+        clients = Client.objects.all()
+        serializer = self.get_serializer(clients, many = True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=["delete"])
+    def delete_all(self, request):
+        application_id = request.GET["application_id"]
+        Client.objects.filter(application_id=application_id).delete()
+        return Response(status=status.HTTP_200_OK)
