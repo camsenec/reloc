@@ -9,7 +9,7 @@ from .serializer import EdgeServerSerializer, ClientSerializer
 
 from strategy import allocator
 
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 
 # Create your views here.
 
@@ -18,7 +18,7 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
     serializer_class = EdgeServerSerializer
 
     #エッジサーバーから呼び出されるAPI
-    @list_route(methods=["post"])
+    @action(detail=True, methods=["post"])
     def post(self, request):
         print("request", request.POST)
 
@@ -42,7 +42,7 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #定期的な位置更新
-    @list_route(methods=["put"])
+    @action(detail=True, methods=["put"])
     def update_remain(self, request):
         application_id = request.GET["application_id"]
         server_id = request.GET["server_id"]
@@ -56,7 +56,7 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #データベース管理用API
-    @list_route(methods=["get"])
+    @action(detail=True, methods=["get"])
     def get(self, request):
         application_id = request.GET["application_id"]
         server_id = request.GET["server_id"]
@@ -64,7 +64,7 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(server)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=["delete"])
+    @action(detail=False, methods=["delete"])
     def delete_all(self, request):
         application_id = request.GET["application_id"]
         EdgeServer.objects.filter(application_id=application_id).delete()
@@ -82,7 +82,7 @@ class ClientViewSet(viewsets.ModelViewSet):
     serializer_class = ClientSerializer
 
     #クライアントの登録
-    @list_route(methods=["post"])
+    @action(detail=True, methods=["post"])
     def post(self, request):
         application_id = request.GET['application_id'] #シミュレーター上では指定
 
@@ -105,7 +105,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #定期的な位置更新
-    @list_route(methods=["put"])
+    @action(detail=True, methods=["put"])
     def update_location(self, request):
         application_id = request.GET["application_id"]
         client_id = request.GET["client_id"]
@@ -121,7 +121,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #定期的なhome serverの更新
-    @list_route(methods=["put"])
+    @action(detail=True, methods=["put"])
     def update_home(self, request):
         application_id = request.GET["application_id"]
         client_id = request.GET["client_id"]
@@ -144,7 +144,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #データベース管理用API
-    @list_route(methods=["get"])
+    @action(detail=True, methods=["get"])
     def get(self, request, pk = None):
         application_id = request.GET["application_id"]
         client_id = request.GET["client_id"]
@@ -157,8 +157,28 @@ class ClientViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(clients, many = True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=["delete"])
+    @action(detail=False, methods=["delete"])
     def delete_all(self, request):
         application_id = request.GET["application_id"]
         Client.objects.filter(application_id=application_id).delete()
         return Response(status=status.HTTP_200_OK)
+
+    #シミュレーション用API
+    @action(detail=True, methods=["post"])
+    def post_from_simulator(self, request):
+        application_id = request.GET['application_id'] #シミュレーター上では指定
+        client_id = request.GET['client_id']
+
+        print('client_id', client_id)
+        x = request.POST['x']
+        y = request.POST['y']
+
+        client = Client.objects.create(application_id = application_id, client_id = client_id, x = x, y = y)
+
+        #home serverの割り当て
+        new_home_server_id = allocator.allocate(application_id, client_id)
+        client.home = EdgeServer.objects.get(server_id = new_home_server_id)
+        client.save()
+
+        serializer = self.get_serializer(client)
+        return Response(serializer.data, status=status.HTTP_200_OK)
