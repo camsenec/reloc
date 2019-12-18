@@ -8,9 +8,17 @@ class EdgeServerSerializer(serializers.ModelSerializer):
         fields = ('application_id', 'server_id', 'x','y', 'capacity', 'remain', 'cluster_id')
 
 class ClientSerializer(serializers.ModelSerializer):
+    #下記に定義するメソッド経由
+    home = serializers.SerializerMethodField()
+
     class Meta:
         model = Client
         fields = ('application_id', 'client_id', 'x', 'y', 'home')
+
+    #インスタンスとは, clientインスタンスを指している
+    def get_home(self, instance):
+        return str(instance.home.server_id)
+
 
 
 '''

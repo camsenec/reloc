@@ -15,7 +15,8 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
+MEDIA_ROOT = os.path.join(BASE_DIR, 'simulation')
+MEDIA_URL = '/simulation/'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -26,7 +27,6 @@ SECRET_KEY = ')u!#zd$wn_j0x_h$1kwmd87z_f4j=3v74e!jfcjt0iisx4s3*_'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 

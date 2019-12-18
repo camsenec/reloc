@@ -18,7 +18,7 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
     serializer_class = EdgeServerSerializer
 
     #エッジサーバーから呼び出されるAPI
-    @action(detail=True, methods=["post"])
+    @action(detail=False, methods=["post"])
     def post(self, request):
         print("request", request.POST)
 
@@ -42,7 +42,7 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #定期的な位置更新
-    @action(detail=True, methods=["put"])
+    @action(detail=False, methods=["put"])
     def update_remain(self, request):
         application_id = request.GET["application_id"]
         server_id = request.GET["server_id"]
@@ -56,7 +56,7 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #データベース管理用API
-    @action(detail=True, methods=["get"])
+    @action(detail=False, methods=["get"])
     def get(self, request):
         application_id = request.GET["application_id"]
         server_id = request.GET["server_id"]
@@ -70,7 +70,8 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         EdgeServer.objects.filter(application_id=application_id).delete()
         return Response(status=status.HTTP_200_OK)
 
-    def list(self, request):
+    @action(detail=False, methods=["get"])
+    def get_all(self, request):
         serializer = self.get_serializer(self.queryset, many = True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -82,14 +83,14 @@ class ClientViewSet(viewsets.ModelViewSet):
     serializer_class = ClientSerializer
 
     #クライアントの登録
-    @action(detail=True, methods=["post"])
+    @action(detail=False, methods=["post"])
     def post(self, request):
         application_id = request.GET['application_id'] #シミュレーター上では指定
 
         if  Client.objects.all().count() == 0:
             client_id = 1
         else:
-            client_id = Client.objects.all().aggregate(Max('client_id'))['client_id__max'] + 1
+             client_id = Client.objects.all().aggregate(Max('client_id'))['client_id__max'] + 1
         print('client_id', client_id)
         x = request.POST['x']
         y = request.POST['y']
@@ -105,11 +106,11 @@ class ClientViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #定期的な位置更新
-    @action(detail=True, methods=["put"])
+    @action(detail=False, methods=["put"])
     def update_location(self, request):
         application_id = request.GET["application_id"]
         client_id = request.GET["client_id"]
-        client = self.queryset.get(Q(application_id = application_id), Q(client_id = client_id))
+        client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
         x = request.POST['x']
         y = request.POST['y']
 
@@ -121,11 +122,13 @@ class ClientViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #定期的なhome serverの更新
-    @action(detail=True, methods=["put"])
+    @action(detail=False, methods=["put"])
     def update_home(self, request):
         application_id = request.GET["application_id"]
         client_id = request.GET["client_id"]
-        client = self.queryset.get(Q(application_id = application_id), Q(client_id = client_id))
+        print("allocated_client_id", client_id)
+        client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
+        print(client)
 
         '''
         1. 該当クライアントのデータを取得
@@ -144,7 +147,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #データベース管理用API
-    @action(detail=True, methods=["get"])
+    @action(detail=False, methods=["get"])
     def get(self, request, pk = None):
         application_id = request.GET["application_id"]
         client_id = request.GET["client_id"]
@@ -152,7 +155,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(client)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def list(self, request):
+    def get_all(self, request):
         clients = Client.objects.all()
         serializer = self.get_serializer(clients, many = True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -164,12 +167,11 @@ class ClientViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_200_OK)
 
     #シミュレーション用API
-    @action(detail=True, methods=["post"])
+    @action(detail=False, methods=["post"])
     def post_from_simulator(self, request):
         application_id = request.GET['application_id'] #シミュレーター上では指定
-        client_id = request.GET['client_id']
+        client_id = request.POST['client_id']
 
-        print('client_id', client_id)
         x = request.POST['x']
         y = request.POST['y']
 

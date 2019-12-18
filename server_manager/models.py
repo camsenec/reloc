@@ -47,7 +47,7 @@ class EdgeServer(models.Model):
     cluster_id = models.IntegerField(default=1)
 
     def __str__(self):
-        return str(self.id)
+        return str(self.server_id)
 
 class Client(models.Model):
     class Meta:
@@ -63,7 +63,7 @@ class Client(models.Model):
     #serverを外部キーにして参照
 
     def __str__(self):
-        return str(self.id)
+        return str(self.client_id)
 
 ## Simulation陽
 

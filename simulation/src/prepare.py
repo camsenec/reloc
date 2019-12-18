@@ -12,6 +12,7 @@ from scipy.sparse.linalg import svds
 import matplotlib.pyplot as plt
 import itertools
 
+print("Loading...")
 followers_df_all = pd.read_table('../input/user_sns.txt', names=('follower', 'followee'))
 
 id_from = 1000000

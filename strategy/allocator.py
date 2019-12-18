@@ -92,11 +92,15 @@ def allocate(application_id, client_id):
     client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
 
     #所属クラスタを調べる（距離が指標）
+    print("Search cluster...")
     cluster_label = my_cluster(application_id, client.x, client.y)
 
     #選択アルゴリズムを適用
+    print("Select...")
+    allocated_server_id = random_select_in_cluster(cluster_label)
 
     #Visualize
+    '''
     df_all = read_frame(EdgeServer.objects.all(),
         fieldnames = ['application_id', 'server_id', 'x', 'y', 'capacity', 'remain', 'cluster_id'])
 
@@ -105,7 +109,6 @@ def allocate(application_id, client_id):
         plt.scatter(df_all[df_all['cluster_id'] == label]['x'], df_all[df_all['cluster_id'] == label]['y'],  label = "cluster-" + str(label))
     plt.legend()
 
-
     #home serverの位置のプロット
     server = EdgeServer.objects.get(Q(application_id = application_id), Q(server_id = allocated_server_id))
     plt.plot(server.x, server.y, c="pink", alpha=0.5, linewidth ="2", mec="red", markersize=20, marker="o")
@@ -113,6 +116,7 @@ def allocate(application_id, client_id):
     #クライアントの位置のプロット
     plt.plot(client.x, client.y, marker='X', markersize=20)
     plt.savefig("./log/figure.png")
+    '''
 
     return allocated_server_id
 
@@ -130,8 +134,6 @@ def my_cluster(application_id, x, y):
     for cluster in cluster_set:
         dist.append(math.sqrt((cluster.centroid_x - x)**2 + (cluster.centroid_y - y)**2))
 
-    print(dist)
-
     return dist.index(min(dist))
 
 #所属クラスタからランダムにサーバーを選択（ランダムではなく, 集約アルゴリズムを適用）
@@ -147,6 +149,10 @@ def select_nearest_server():
 def random_select_in_cluster(cluster_label):
     cluster = EdgeServer.objects.filter(cluster_id = cluster_label) #所属クラスタのみを抽出
     cluster_df = read_frame(cluster, fieldnames=['application_id', 'server_id', 'x', 'y', 'capacity', 'remain', 'cluster_id'])
+    print("Cluster DataFrame")
+    print(cluster_df)
+    print("Index")
+    print(int(random.random() * cluster_df.shape[0]))
     allocated_server_id = cluster_df.iloc[int(random.random() * cluster_df.shape[0])]['server_id']
     return allocated_server_id
 
