@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import EdgeServer, Client
+from .models import EdgeServer, Client, Cluster
 
 
 class EdgeServerSerializer(serializers.ModelSerializer):
@@ -18,6 +18,11 @@ class ClientSerializer(serializers.ModelSerializer):
     #インスタンスとは, clientインスタンスを指している
     def get_home(self, instance):
         return str(instance.home.server_id)
+
+class ClusterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cluster
+        fields = ('application_id', 'cluster_id', 'centroid_x','centroid_y')
 
 
 

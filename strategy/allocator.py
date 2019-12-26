@@ -11,6 +11,8 @@ import pandas as pd
 import math
 import numpy as np
 
+from strategy import selector
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -33,15 +35,14 @@ def clustering(application_id):
     server_set = EdgeServer.objects.filter(application_id = application_id)
     n_servers = server_set.count()
 
-    print("first")
-
     #クラスタ数(K)
     n_clusters = math.ceil(n_servers / avg_n_coop_server)
 
-
+    '''
     print("number_of_servers : ", n_servers)
     print("avg_coop_n_server :", avg_n_coop_server)
     print("number_of_clusters : ", n_clusters)
+    '''
 
     #クラスタリングされるエッジサーバー
     df = read_frame(EdgeServer.objects.all(),
@@ -51,8 +52,6 @@ def clustering(application_id):
     kmeans = KMeans(n_clusters, random_state=0)
     result = kmeans.fit_predict(df[['x', 'y']])
     centroids = kmeans.cluster_centers_
-
-    print(kmeans.labels_)
 
     #セーバーのクラスタの更新
     i = 0
@@ -76,18 +75,20 @@ def clustering(application_id):
         )
 
     #Visualize
+    '''
     plt.figure(figsize=(10, 7))
     for label in np.unique(kmeans.labels_):
         plt.scatter(df[df['cluster_id'] == label]['x'], df[df['cluster_id'] == label]['y'],  label = "cluster-" + str(label))
     plt.legend()
     plt.savefig("./log/figure.png")
+    '''
 
 
 #クライアント用
 '''
     返り値: 割り当てられたサーバーのid
 '''
-def allocate(application_id, client_id):
+def allocate(application_id, client_id, strategy):
 
     client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
 
@@ -97,7 +98,16 @@ def allocate(application_id, client_id):
 
     #選択アルゴリズムを適用
     print("Select...")
-    allocated_server_id = random_select_in_cluster(cluster_label)
+    if strategy == "RA":
+        allocated_server_id = selector.random_select()
+    elif strategy == "NS":
+        allocated_server_id = selector.select_nearest_server()
+    elif strategy == "RAIC":
+        allocated_server_id = selector.random_select_in_cluster(cluster_label)
+    elif strategy == "HRIC":
+        allocted_server_id = selector.select_in_cluster(client_id, cluster_label)
+    else:
+        allocated_server_id = selector.random_select()
 
     #Visualize
     '''
@@ -120,8 +130,6 @@ def allocate(application_id, client_id):
 
     return allocated_server_id
 
-
-
 '''
     返り値 : 最も近いクラスタのラベル(id)
 '''
@@ -135,43 +143,3 @@ def my_cluster(application_id, x, y):
         dist.append(math.sqrt((cluster.centroid_x - x)**2 + (cluster.centroid_y - y)**2))
 
     return dist.index(min(dist))
-
-#所属クラスタからランダムにサーバーを選択（ランダムではなく, 集約アルゴリズムを適用）
-def random_select():
-    cluster = EdgeServer.objects.all()
-    cluster_df = read_frame(cluster, fieldnames=['application_id', 'server_id', 'x', 'y', 'capacity', 'remain', 'cluster_id'])
-    allocated_server_id = cluster_df.iloc[int(random.random() * cluster_df.shape[0])]['server_id']
-    return allocated_server_id
-
-def select_nearest_server():
-    pass
-
-def random_select_in_cluster(cluster_label):
-    cluster = EdgeServer.objects.filter(cluster_id = cluster_label) #所属クラスタのみを抽出
-    cluster_df = read_frame(cluster, fieldnames=['application_id', 'server_id', 'x', 'y', 'capacity', 'remain', 'cluster_id'])
-    print("Cluster DataFrame")
-    print(cluster_df)
-    print("Index")
-    print(int(random.random() * cluster_df.shape[0]))
-    allocated_server_id = cluster_df.iloc[int(random.random() * cluster_df.shape[0])]['server_id']
-    return allocated_server_id
-
-def select_in_cluster(client_id, cluster_label):
-    cluster = EdgeServer.objects.filter(cluster_id = cluster_label)
-    cluster_df = read_frame(data, fieldnames=['application_id', 'server_id', 'x', 'y', 'capacity', 'remain', 'cluster_id'])
-    servers_in_cluster = cluster_df['server_id']
-
-    relations_df = pd.read_csv('./data/relationship.csv', names = ['client_id', 'related_clients'])
-    #ランダム選択で初期化
-    allocated_server_id = cluster_df.iloc[int(random.random() * cluster_df.shape[0])]['server_id']
-
-    #関連性の高いユーザー順で10人(変数となる)からなるリスト
-    related_clients_list = list(map(int, relations_df.loc[0,'related_clients'].strip('[]').split(', ')))
-
-    #その10人が同じクラスターに所属していれば, そのサーバーにクライアントを割り当て. 所属していなければrandomに選択
-    for client_id in related_clients_list:
-        client = Client.objects.get(cliernt_id = client_id)
-        if client.home.server_id in servers_in_cluster:
-            allocated_server_id = client.home.server_id
-
-    return allocated_server_id

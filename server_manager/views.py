@@ -3,13 +3,15 @@ from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 
-from .models import EdgeServer, Client
+from .models import EdgeServer, Client, Cluster
 from django.db.models import Q, Max
-from .serializer import EdgeServerSerializer, ClientSerializer
+from .serializer import EdgeServerSerializer, ClientSerializer, ClusterSerializer
 
 from strategy import allocator
 
 from rest_framework.decorators import action
+
+strategy = "RAIC"
 
 # Create your views here.
 
@@ -20,8 +22,6 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
     #エッジサーバーから呼び出されるAPI
     @action(detail=False, methods=["post"])
     def post(self, request):
-        print("request", request.POST)
-
         application_id = request.GET['application_id'] #シミュレーター上では指定
 
         if EdgeServer.objects.all().count() == 0:
@@ -33,7 +33,8 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         x = request.POST['x']
         y = request.POST['y']
         capacity = request.POST['capacity']
-        server = EdgeServer.objects.create(application_id = application_id, server_id = server_id, x = x, y = y, capacity = capacity, remain = capacity)
+        server = EdgeServer.objects.create(application_id = application_id, server_id = server_id, x = x, y = y, capacity = capacity, userd = 0)
+        server.save()
 
         allocator.clustering(application_id)
 
@@ -43,13 +44,11 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
 
     #定期的な位置更新
     @action(detail=False, methods=["put"])
-    def update_remain(self, request):
+    def update_used(self, request):
         application_id = request.GET["application_id"]
         server_id = request.GET["server_id"]
         server = self.queryset.get(Q(application_id = application_id), Q(server_id = server_id))
-        remain = request.POST["remain"]
-
-        server.remain
+        used = request.POST["used"]
         server.save()
 
         serializer = self.get_serializer(server)
@@ -64,15 +63,20 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(server)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=["get"])
+    def get_all(self, request):
+        application_id = request.GET["application_id"]
+        servers = EdgeServer.objects.filter(application_id=application_id)
+        serializer = self.get_serializer(servers, many = True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     @action(detail=False, methods=["delete"])
     def delete_all(self, request):
         application_id = request.GET["application_id"]
         EdgeServer.objects.filter(application_id=application_id).delete()
-        return Response(status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["get"])
-    def get_all(self, request):
-        serializer = self.get_serializer(self.queryset, many = True)
+        servers = EdgeServer.objects.filter(application_id=application_id)
+        serializer = self.get_serializer(servers, many = True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -98,7 +102,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         client = Client.objects.create(application_id = application_id, client_id = client_id, x = x, y = y)
 
         #home serverの割り当て
-        new_home_server_id = allocator.allocate(application_id, client_id)
+        new_home_server_id = allocator.allocate(application_id, client_id, strategy)
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
 
@@ -124,11 +128,10 @@ class ClientViewSet(viewsets.ModelViewSet):
     #定期的なhome serverの更新
     @action(detail=False, methods=["put"])
     def update_home(self, request):
+
         application_id = request.GET["application_id"]
         client_id = request.GET["client_id"]
-        print("allocated_client_id", client_id)
         client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
-        print(client)
 
         '''
         1. 該当クライアントのデータを取得
@@ -137,7 +140,7 @@ class ClientViewSet(viewsets.ModelViewSet):
 
         #application_idの指定により, 領域の大きさ（Kの大きさ）をテーブルより取得
         #一旦ランダムに配置
-        new_home_server_id = allocator.allocate(application_id, client_id) #テスト必要
+        new_home_server_id = allocator.allocate(application_id, client_id, strategy) #テスト必要
         print("allocated : ", new_home_server_id)
 
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
@@ -156,7 +159,8 @@ class ClientViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def get_all(self, request):
-        clients = Client.objects.all()
+        application_id = request.GET["application_id"]
+        clients = Client.objects.filter(application_id=application_id)
         serializer = self.get_serializer(clients, many = True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -164,7 +168,10 @@ class ClientViewSet(viewsets.ModelViewSet):
     def delete_all(self, request):
         application_id = request.GET["application_id"]
         Client.objects.filter(application_id=application_id).delete()
-        return Response(status=status.HTTP_200_OK)
+
+        clients = Client.objects.filter(application_id=application_id)
+        serializer = self.get_serializer(clients, many = True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     #シミュレーション用API
     @action(detail=False, methods=["post"])
@@ -175,12 +182,33 @@ class ClientViewSet(viewsets.ModelViewSet):
         x = request.POST['x']
         y = request.POST['y']
 
-        client = Client.objects.create(application_id = application_id, client_id = client_id, x = x, y = y)
+        if len(Client.objects.filter(Q(application_id = application_id), Q(client_id = client_id))) == 0:
+            client = Client.objects.create(application_id = application_id, client_id = client_id, x = x, y = y)
+        else:
+            return Response(status=status.HTTP_200_OK)
 
         #home serverの割り当て
-        new_home_server_id = allocator.allocate(application_id, client_id)
+        new_home_server_id = allocator.allocate(application_id, client_id, strategy)
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
 
         serializer = self.get_serializer(client)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class ClusterViewSet(viewsets.ModelViewSet):
+    queryset = Cluster.objects.all()
+    serializer_class = ClusterSerializer
+    def get_all(self, request):
+        application_id = request.GET["application_id"]
+        clusters = Cluster.objects.filter(application_id=application_id)
+        serializer = self.get_serializer(clusters, many = True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["delete"])
+    def delete_all(self, request):
+        application_id = request.GET["application_id"]
+        Cluster.objects.filter(application_id=application_id).delete()
+
+        clusters = Cluster.objects.filter(application_id=application_id)
+        serializer = self.get_serializer(clusters, many = True)
         return Response(serializer.data, status=status.HTTP_200_OK)

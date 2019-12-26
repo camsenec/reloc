@@ -43,7 +43,7 @@ class EdgeServer(models.Model):
     x = models.FloatField()
     y = models.FloatField()
     capacity = models.FloatField()
-    remain = models.FloatField()
+    used = models.FloatField()
     cluster_id = models.IntegerField(default=1)
 
     def __str__(self):
