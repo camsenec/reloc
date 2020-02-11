@@ -91,7 +91,7 @@ def clustering(application_id):
 '''
     返り値: 割り当てられたサーバーのid
 '''
-def allocate(application_id, client_id, strategy):
+def allocate(application_id, client_id, strategy, weight):
 
     client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
 
@@ -110,8 +110,8 @@ def allocate(application_id, client_id, strategy):
         allocated_server_id = selector.random_select_in_cluster(cluster_label)
     elif strategy == "RLCA" or strategy == "RCA":
         allocated_server_id = selector.select_in_cluster(client_id, cluster_label)
-    elif strstegy == "RLCCA":
-        allocated_server_id = selector.select_in_cluster(client_id, cluster_label)
+    elif strategy == "RLCCA":
+        allocated_server_id = selector.select_in_cluster_with_cooperation(client_id, cluster_label, 160, weight)
     else:
         allocated_server_id = selector.random_select()
 
@@ -121,6 +121,7 @@ def allocate(application_id, client_id, strategy):
     df_all = read_frame(EdgeServer.objects.all(),
         fieldnames = ['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'cluster_id'])
 
+    '''
     plt.figure(figsize=(10, 7))
     for label in np.unique(df_all['cluster_id']):
         plt.scatter(df_all[df_all['cluster_id'] == label]['x'], df_all[df_all['cluster_id'] == label]['y'],  label = "cluster-" + str(label))
@@ -129,7 +130,6 @@ def allocate(application_id, client_id, strategy):
     plt.ylabel('y[km]')
 
     #home serverの位置のプロット
-    '''
     server = EdgeServer.objects.get(Q(application_id = application_id), Q(server_id = allocated_server_id))
     plt.plot(server.x, server.y, c="pink", alpha=0.5, linewidth ="2", mec="red", markersize=20, marker="o")
 

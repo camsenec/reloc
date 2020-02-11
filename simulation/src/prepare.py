@@ -16,7 +16,7 @@ print("Loading...")
 followers_df_all = pd.read_table('../input/user_sns.txt', names=('follower', 'followee'))
 
 id_from = 1000000
-id_to = 1005000
+id_to = 1100000
 limit = 5
 
 #idが id_from ~ id_toのユーザーを抽出
@@ -39,6 +39,8 @@ groups_df = pd.DataFrame(groups).reset_index()
 
 groups_df.to_csv("../out/tx_log.csv", index=True, header=False)
 
+#print(groups.shape[0])
+
 for send_from in groups.keys():
     groups[send_from].append(send_from)
 
@@ -49,7 +51,8 @@ pair_all = []
 for send_from in groups.keys():
     pair_all.extend(groups[send_from])
 pair_all.reverse()
-pair_all = pair_all[0:1000000] #直近100000件を取得
+pair_all = pair_all[0:10000000] #直近100000件を取得
+print(len(pair_all))
 
 df = pd.DataFrame(pair_all, columns= ["A","B"])
 df["count"] = 1
@@ -58,15 +61,18 @@ followers_pivot_matrix_df = df.pivot_table(values="count",index='A', columns='B'
 followers_pivot_matrix = followers_pivot_matrix_df.values
 
 #The number of factors to factor the user-item matrix.
-NUMBER_OF_FACTORS_MF = 15
+NUMBER_OF_FACTORS_MF = int(followers_pivot_matrix_df.shape[0] * (0.1))
+print(NUMBER_OF_FACTORS_MF)
 #Performs matrix factorization of the original user item matrix
+#print(followers_pivot_matrix_df.shape[0])
+print('svd')
 U, sigma, Vt = svds(followers_pivot_matrix, k = NUMBER_OF_FACTORS_MF)
 sigma = np.diag(sigma)
 
 predicted_ratings = np.dot(np.dot(U, sigma), Vt)
 svd_preds_df = pd.DataFrame(predicted_ratings, columns = followers_pivot_matrix_df.columns, index=followers_pivot_matrix_df.index)
 
-related_user_num = 10
+related_user_num = 100
 res = pd.DataFrame(columns=['related_clients'])
 for client_id in svd_preds_df.keys():
     sorted_client_predictions = list(svd_preds_df[client_id].sort_values(ascending=False).head(related_user_num).keys())
