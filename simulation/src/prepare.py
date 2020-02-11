@@ -16,7 +16,7 @@ print("Loading...")
 followers_df_all = pd.read_table('../input/user_sns.txt', names=('follower', 'followee'))
 
 id_from = 1000000
-id_to = 1100000
+id_to = 1005000
 limit = 5
 
 #idが id_from ~ id_toのユーザーを抽出
@@ -49,7 +49,7 @@ pair_all = []
 for send_from in groups.keys():
     pair_all.extend(groups[send_from])
 pair_all.reverse()
-pair_all = pair_all[0:100000] #直近100000件を取得
+pair_all = pair_all[0:1000000] #直近100000件を取得
 
 df = pd.DataFrame(pair_all, columns= ["A","B"])
 df["count"] = 1

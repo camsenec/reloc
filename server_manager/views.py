@@ -11,7 +11,12 @@ from strategy import allocator
 
 from rest_framework.decorators import action
 
-strategy = "RAIC"
+#strategy_main = "RA"
+#strategy_main = "NS"
+#strategy_main = "LCA"
+#strategy_main = "RCA"
+#strategy_main = "RLCA"
+strategy_main = "RLCCA" #Relaiton and Locality concious Cooperative Client Assingment
 
 # Create your views here.
 
@@ -33,7 +38,7 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         x = request.POST['x']
         y = request.POST['y']
         capacity = request.POST['capacity']
-        server = EdgeServer.objects.create(application_id = application_id, server_id = server_id, x = x, y = y, capacity = capacity, userd = 0)
+        server = EdgeServer.objects.create(application_id = application_id, server_id = server_id, x = x, y = y, capacity = capacity, used = 0)
         server.save()
 
         allocator.clustering(application_id)
@@ -49,8 +54,9 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         server_id = request.GET["server_id"]
         server = self.queryset.get(Q(application_id = application_id), Q(server_id = server_id))
         used = request.POST["used"]
-        server.save()
 
+        server.used = used
+        server.save()
         serializer = self.get_serializer(server)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -102,7 +108,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         client = Client.objects.create(application_id = application_id, client_id = client_id, x = x, y = y)
 
         #home serverの割り当て
-        new_home_server_id = allocator.allocate(application_id, client_id, strategy)
+        new_home_server_id = allocator.allocate(application_id, client_id, strategy="RA")
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
 
@@ -140,9 +146,7 @@ class ClientViewSet(viewsets.ModelViewSet):
 
         #application_idの指定により, 領域の大きさ（Kの大きさ）をテーブルより取得
         #一旦ランダムに配置
-        new_home_server_id = allocator.allocate(application_id, client_id, strategy) #テスト必要
-        print("allocated : ", new_home_server_id)
-
+        new_home_server_id = allocator.allocate(application_id, client_id, strategy_main)
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
 
@@ -188,7 +192,7 @@ class ClientViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK)
 
         #home serverの割り当て
-        new_home_server_id = allocator.allocate(application_id, client_id, strategy)
+        new_home_server_id = allocator.allocate(application_id, client_id, strategy="RA")
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
 

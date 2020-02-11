@@ -5,7 +5,7 @@ from .models import EdgeServer, Client, Cluster
 class EdgeServerSerializer(serializers.ModelSerializer):
     class Meta:
         model = EdgeServer
-        fields = ('application_id', 'server_id', 'x','y', 'capacity', 'remain', 'cluster_id')
+        fields = ('application_id', 'server_id', 'x','y', 'capacity', 'used', 'cluster_id')
 
 class ClientSerializer(serializers.ModelSerializer):
     #下記に定義するメソッド経由

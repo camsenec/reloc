@@ -30,6 +30,7 @@ def clustering(application_id):
 
     #1クラスタあたりのサーバーの数
     avg_n_coop_server = app.area.avg_n_cooperative_server
+    avg_n_coop_server = 10
 
     #当該アプリケーションが確保しているサーバーの数
     server_set = EdgeServer.objects.filter(application_id = application_id)
@@ -46,7 +47,7 @@ def clustering(application_id):
 
     #クラスタリングされるエッジサーバー
     df = read_frame(EdgeServer.objects.all(),
-        fieldnames= ['application_id', 'server_id', 'x', 'y', 'capacity', 'remain', 'cluster_id'])
+        fieldnames= ['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'cluster_id'])
 
     #クラスタリング
     kmeans = KMeans(n_clusters, random_state=0)
@@ -80,6 +81,8 @@ def clustering(application_id):
     for label in np.unique(kmeans.labels_):
         plt.scatter(df[df['cluster_id'] == label]['x'], df[df['cluster_id'] == label]['y'],  label = "cluster-" + str(label))
     plt.legend()
+    plt.xlabel('x[km]')
+    plt.ylabel('y[km]')
     plt.savefig("./log/figure.png")
     '''
 
@@ -97,29 +100,36 @@ def allocate(application_id, client_id, strategy):
     cluster_label = my_cluster(application_id, client.x, client.y)
 
     #選択アルゴリズムを適用
+    #RCCAのときは, avg_n_coop_serverの値を十分に大きくする.
     print("Select...")
     if strategy == "RA":
         allocated_server_id = selector.random_select()
     elif strategy == "NS":
-        allocated_server_id = selector.select_nearest_server()
-    elif strategy == "RAIC":
+        allocated_server_id = selector.select_nearest_server(client_id)
+    elif strategy == "LCA":
         allocated_server_id = selector.random_select_in_cluster(cluster_label)
-    elif strategy == "HRIC":
-        allocted_server_id = selector.select_in_cluster(client_id, cluster_label)
+    elif strategy == "RLCA" or strategy == "RCA":
+        allocated_server_id = selector.select_in_cluster(client_id, cluster_label)
+    elif strstegy == "RLCCA":
+        allocated_server_id = selector.select_in_cluster(client_id, cluster_label)
     else:
         allocated_server_id = selector.random_select()
 
     #Visualize
-    '''
+    #if strategy == "PP":
+    print("visualizing...")
     df_all = read_frame(EdgeServer.objects.all(),
-        fieldnames = ['application_id', 'server_id', 'x', 'y', 'capacity', 'remain', 'cluster_id'])
+        fieldnames = ['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'cluster_id'])
 
     plt.figure(figsize=(10, 7))
     for label in np.unique(df_all['cluster_id']):
         plt.scatter(df_all[df_all['cluster_id'] == label]['x'], df_all[df_all['cluster_id'] == label]['y'],  label = "cluster-" + str(label))
     plt.legend()
+    plt.xlabel('x[km]')
+    plt.ylabel('y[km]')
 
     #home serverの位置のプロット
+    '''
     server = EdgeServer.objects.get(Q(application_id = application_id), Q(server_id = allocated_server_id))
     plt.plot(server.x, server.y, c="pink", alpha=0.5, linewidth ="2", mec="red", markersize=20, marker="o")
 
