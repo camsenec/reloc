@@ -12,9 +12,9 @@ from strategy import allocator
 from rest_framework.decorators import action
 
 #strategy_main = "RA"
-strategy_main = "NS"
+#strategy_main = "NS"
 #strategy_main = "LCA"
-#strategy_main = "RLCA"
+strategy_main = "RLCA"
 #strategy_main = "RLCCA" #Relaiton and Locality concious Cooperative Client Assingment
 
 # Create your views here.
