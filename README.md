@@ -14,7 +14,12 @@ The assignment is based on RLCCA algorithm [1].
 
 ### References
 
-[1] Tomoya Tanaka, Tsutano Takumi, Kamada Tomio, ``Collaborative caching for Pub/Sub system in edge computing'', Proc. in IEICE General Conference, March 2020.
+[1] Tomoya Tanaka, Tsutano Takumi, Kamada Tomio, ''Collaborative caching for Pub/Sub system in edge computing'', Proc. in IEICE General Conference, March 2020.
+
+## Infrastracture
+The Edge Manager is implemented using a web framework Django, which is one of the Python web frameworks and offers high security and scalability. AWS EC2 instances are used as server side which can dynamically adjust resource usage according to user demand. Database is constructed with SQLite. Clients send request to Edge Manager to get server to be connected at regular intervals considering client mobility. 
+
+
 
 
 ## API
@@ -208,7 +213,7 @@ Register an edge server to the Edge Manager service. Server ID is given to the r
 
 - [Base System] Go
 
-- [Edge Manager] Python
+- [Edge Manager] Python (Django)
 
 - [Simulator] Java
 
