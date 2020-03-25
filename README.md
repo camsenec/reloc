@@ -19,8 +19,7 @@ The assignment is based on RLCCA algorithm [1].
 ## Infrastracture
 The Edge Manager is implemented using a web framework Django, which is one of the Python web frameworks and offers high security and scalability. AWS EC2 instances are used as server side which can dynamically adjust resource usage according to user demand. Database is constructed with SQLite. Clients send request to Edge Manager to get server to be connected at regular intervals considering client mobility. 
 
-![infra](https://user-images.githubusercontent.com/27656483/77508655-8b615c80-6eae-11ea-96f1-b56a651d3e46.png)
-
+![infra](https://user-images.githubusercontent.com/27656483/77508784-de3b1400-6eae-11ea-8de7-a501ec7935ec.png)
 
 
 ## API
