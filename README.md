@@ -32,7 +32,7 @@ The assignment is based on RLCCA algorithm [1].
 
 
 
-4. The problem is that cache and bandwidth can be over-consumed as the number of users increases.
+4. The problem is that cache capacity and bandwidth can be over-consumed as the number of users increases.
 
 
 
