@@ -164,7 +164,7 @@ Register an edge server to the Edge Manager service. Server ID is given to the r
     
 ## Theory
 
-1. Our is to realize immediate and free content sharing levaraging edge servers.
+1. Our is to realize immediate and flexible content sharing levaraging edge servers.
 
 ![fig1](https://user-images.githubusercontent.com/27656483/77507360-a8486080-6eab-11ea-9bfe-281d6e26337d.png)
 
