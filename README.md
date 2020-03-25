@@ -22,18 +22,20 @@ The assignment is based on RLCCA algorithm [1].
 
 1. Our is to realize immediate and free content sharing levaraging edge servers.
 
-
+![fig1](https://user-images.githubusercontent.com/27656483/77507360-a8486080-6eab-11ea-9bfe-281d6e26337d.png)
 
 2. There are many existing research on content caching utilizing edge servers. In common, what content should be placed on which edge server is being considered considering the finiteness of edge server resources \[1\], \[2\], \[3\]. The studies shown on the left propose a method for selecting content to be cached on edge servers based on access frequency, etc. This allows users to get the desired content instantly.On the other hand, we are interested in applications that are highly interactive. However, Previous study as shown in the upper right only realize sharing public content among clients\ [4\]. Our aim is to enable real-time content sharing among specific users, as shown at the bottom right. Here, in the lower right figure, the content is shared with the vehicles colored by blue, but not with the vehicles colored by green.
 
+![fig2](https://user-images.githubusercontent.com/27656483/77507364-aaaaba80-6eab-11ea-89f3-42b005cdeadd.png)
 
 
 3. As a related work on content sharing among specific users, a system based on the Publisher/Subscriber model that can transmit content only to a specific destination has been proposed [5]. In this system, each user hold a cache of shared content on a fixed edge server. The fixed edge server is called the `home server`.  Suppose that the publisher transmit content updates to its subscriber. First, Publisher updates content on her/his home server. The updates are immediately synchronized to the subscriber's home server. This gives the consistency of the content. Finally, the updated content is propagated by push notification to the destination user. At this time, the content is not shared to User P who is not set as the destination and User Q who is not sharing the same content. We realize resource sharing and real-time content sharing based on the model.
 
-
+![fig3](https://user-images.githubusercontent.com/27656483/77507365-ab435100-6eab-11ea-8b9f-a2e7e322731e.png)
 
 4. The problem is that cache capacity and bandwidth can be over-consumed as the number of users increases.
 
+![fig4](https://user-images.githubusercontent.com/27656483/77507372-aed6d800-6eab-11ea-8e20-bfd9f305f995.png)
 
 
 5. Our policy is to realize efficient use of edge server resources and to reduce content delivery delays.
@@ -41,11 +43,12 @@ The assignment is based on RLCCA algorithm [1].
    One idea is to use the strong connectivity between publishers and subscribers.
    If users who have strong connectivity utilize the same content cache, the consumed cache capacity can be reduced.
 
+![fig5](https://user-images.githubusercontent.com/27656483/77507378-b26a5f00-6eab-11ea-9806-464a86ae18ad.png)
 
 
 6. Based on these ideas We propose RLCCA Algorithm which effectively reduce resource usage on edge computing node and reduce content delivery delay remarkably. We implement RLCCA Algorithm on this Edge Manager service and realize novel client and content cache allocation on edge servers. Numerical experiments which uses this Edge Manager show that the proposed method can reduce the content transfer delay by up to 55% compared to existing methods.
 
-
+![fig6](https://user-images.githubusercontent.com/27656483/77507382-b4342280-6eab-11ea-93f8-44ecc4868db5.png)
 
 ### References
 
