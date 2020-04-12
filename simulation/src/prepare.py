@@ -16,7 +16,7 @@ print("Loading...")
 followers_df_all = pd.read_table('../input/user_sns.txt', names=('follower', 'followee'))
 
 id_from = 1000000
-id_to = 1120000
+id_to = 1100000
 limit = 5
 
 #idが id_from ~ id_toのユーザーを抽出
