@@ -16,7 +16,7 @@ print("Loading...")
 followers_df_all = pd.read_table('../input/user_sns.txt', names=('follower', 'followee'))
 
 id_from = 1000000
-id_to = 1100000
+id_to = 1140000
 limit = 5
 
 #idが id_from ~ id_toのユーザーを抽出
@@ -59,6 +59,8 @@ df["count"] = 1
 
 followers_pivot_matrix_df = df.pivot_table(values="count",index='A', columns='B',aggfunc = 'count').fillna(0)
 followers_pivot_matrix = followers_pivot_matrix_df.values
+
+followers_pivot_matrix_df.to_csv('saisaisaisai.csv')
 
 #The number of factors to factor the user-item matrix.
 NUMBER_OF_FACTORS_MF = int(followers_pivot_matrix_df.shape[0] * (0.1))
