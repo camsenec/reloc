@@ -1,4 +1,4 @@
-# Data Analysis-enabled Notification Generation and Delivery System
+# Data Analysis-enabled Notification Generation and Delivery System for Edge Computing
 
 ## Overview
 The importance of real-time notification has been growing for social services and Intelligent Transporting System (ITS). As an advanced version of topic-based Pub/Sub systems, topic-based publish-process-subscribe systems, where published messages are spooled and processed on edge servers, have been proposed to achieve data-driven intelligent notifications. This system allows a topic to be managed on multiple edge servers so that messages are processed near publishers and subscribers, even when publishers are spread over a wide area. Moreover, this system allocate topics adequately on edge servers with limited edge server resources to achieve real-time notifications.
