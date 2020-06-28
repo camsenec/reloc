@@ -30,14 +30,16 @@ def clustering(application_id):
 
     #1クラスタあたりのサーバーの数
     avg_n_coop_server = app.area.avg_n_cooperative_server
-    avg_n_coop_server = 10
+    #print('num_offsjdioafjdiosajfiodsjfiosajfioaj : ',avg_n_coop_server)
+    #avg_n_coop_server = 1
 
     #当該アプリケーションが確保しているサーバーの数
     server_set = EdgeServer.objects.filter(application_id = application_id)
     n_servers = server_set.count()
 
     #クラスタ数(K)
-    n_clusters = math.ceil(n_servers / avg_n_coop_server)
+    #n_clusters = math.ceil(n_servers / avg_n_coop_server)
+    n_clusters = avg_n_coop_server
 
     '''
     print("number_of_servers : ", n_servers)
@@ -48,6 +50,11 @@ def clustering(application_id):
     #クラスタリングされるエッジサーバー
     df = read_frame(EdgeServer.objects.all(),
         fieldnames= ['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'cluster_id'])
+    df_client = read_frame(Client.objects.all(),
+        fieldnames= ['application_id', 'client_id', 'x', 'y', 'home'])
+
+    #print(df)
+    #print(df_client)
 
     #クラスタリング
     kmeans = KMeans(n_clusters, random_state=0)
@@ -85,6 +92,56 @@ def clustering(application_id):
     plt.ylabel('y[km]')
     plt.savefig("./log/figure.png")
     '''
+
+    if(n_clusters==10):
+        plt.figure(figsize=(16, 9))
+        plt.rcParams["font.size"] = 30
+        plt.scatter(df['x'], df['y'])
+        plt.scatter(df_client['x'], df_client['y'], c='k', s=10)
+        for i in range(len(df_client)):
+            #print([df[df['server_id'] == int(df_client.iloc[i]['home'])], df[df['server_id'] == int(df_client.iloc[i]['home'])]])
+            #print([df[df['server_id'] == int(df_client.iloc[i]['home'])]['x'][int(df_client.iloc[i]['home'])-1], df[df['server_id'] == int(df_client.iloc[i]['home'])]['y'][int(df_client.iloc[i]['home'])-1]])
+            #print("fjsioafjdiosajifo", int(df_client.iloc[i]['home']))
+            if df_client.iloc[i]['client_id'] in [1007290,1000512, 1001365, 1004622, 1006355, 1006824, 1010402]:
+                line='dashed'
+            else:
+                line='dotted'
+
+            #print([df_client.iloc[i]['x'],df_client.iloc[i]['y']])
+            x_list = [df[df['server_id'] == int(df_client.iloc[i]['home'])]['x'][int(df_client.iloc[i]['home'])-1], df_client.iloc[i]['x']]
+            y_list = [df[df['server_id'] == int(df_client.iloc[i]['home'])]['y'][int(df_client.iloc[i]['home'])-1],df_client.iloc[i]['y']]
+            plt.plot(x_list,y_list,'k',linestyle=line)
+        #plt.legend()
+        plt.xlabel('x[km]')
+        plt.ylabel('y[km]')
+        plt.xlim([0.0,20.0])
+        plt.ylim([0.0,20.0])
+        plt.savefig("./log/figure_aaaaa.png", bbox_inches="tight")
+
+    else:
+        plt.figure(figsize=(16, 9))
+        plt.rcParams["font.size"] = 30
+        plt.scatter(df['x'], df['y'])
+        plt.scatter(df_client['x'], df_client['y'], c='k', s=30)
+        for i in range(len(df_client)):
+            #print([df[df['server_id'] == int(df_client.iloc[i]['home'])], df[df['server_id'] == int(df_client.iloc[i]['home'])]])
+            #print([df[df['server_id'] == int(df_client.iloc[i]['home'])]['x'][int(df_client.iloc[i]['home'])-1], df[df['server_id'] == int(df_client.iloc[i]['home'])]['y'][int(df_client.iloc[i]['home'])-1]])
+            #print("fjsioafjdiosajifo", int(df_client.iloc[i]['home']))
+            if df_client.iloc[i]['client_id'] in [1007290,1000512, 1001365, 1004622, 1006355, 1006824, 1010402]:
+                id, line=1, 'dashed'
+            else:
+                id, line=2, 'dotted'
+
+            #print([df_client.iloc[i]['x'],df_client.iloc[i]['y']])
+            x_list = [df[df['server_id'] == id]['x'][id-1], df_client.iloc[i]['x']]
+            y_list = [df[df['server_id'] == id]['y'][id-1], df_client.iloc[i]['y']]
+            plt.plot(x_list,y_list,'k',linestyle=line)
+            #plt.legend()
+            plt.xlabel('x[km]')
+            plt.ylabel('y[km]')
+            plt.xlim([0.0,20.0])
+            plt.ylim([0.0,20.0])
+            plt.savefig("./log/figure_bbbbb.png", bbox_inches="tight")
 
 
 #クライアント用

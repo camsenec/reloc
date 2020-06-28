@@ -3,18 +3,18 @@ from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 
-from .models import EdgeServer, Client, Cluster
+from .models import EdgeServer, Client, Cluster, Area
 from django.db.models import Q, Max
-from .serializer import EdgeServerSerializer, ClientSerializer, ClusterSerializer
+from .serializer import EdgeServerSerializer, ClientSerializer, ClusterSerializer, AreaSerializer
 
 from strategy import allocator
 
 from rest_framework.decorators import action
 
-strategy_main = "RA"
+#strategy_main = "RA"
 #strategy_main = "NS"
 #strategy_main = "LCA"
-#strategy_main = "RLCA"
+strategy_main = "RLCA"
 #strategy_main = "RLCCA" #Relaiton and Locality concious Cooperative Client Assingment
 
 # Create your views here.
@@ -58,6 +58,8 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         server.used = used
         server.capacity = capacity
         server.save()
+
+        allocator.clustering(application_id)
         serializer = self.get_serializer(server)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -153,6 +155,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         client.save()
 
         serializer = self.get_serializer(client)
+        allocator.clustering(application_id)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #データベース管理用API
@@ -217,4 +220,17 @@ class ClusterViewSet(viewsets.ModelViewSet):
 
         clusters = Cluster.objects.filter(application_id=application_id)
         serializer = self.get_serializer(clusters, many = True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class AreaViewSet(viewsets.ModelViewSet):
+    queryset = Area.objects.all()
+    serializer_class = AreaSerializer
+
+    @action(detail=False, methods=["put"])
+    def update_number_of_coopserver(self,request):
+        number_of_coopserver=request.POST['number_of_coopserver']
+        area = Area.objects.get(size = 2)
+        area.avg_n_cooperative_server=number_of_coopserver
+        area.save()
+        serializer = self.get_serializer(area)
         return Response(serializer.data, status=status.HTTP_200_OK)

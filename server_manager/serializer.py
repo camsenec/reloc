@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import EdgeServer, Client, Cluster
+from .models import EdgeServer, Client, Cluster, Area
 
 
 class EdgeServerSerializer(serializers.ModelSerializer):
@@ -24,6 +24,10 @@ class ClusterSerializer(serializers.ModelSerializer):
         model = Cluster
         fields = ('application_id', 'cluster_id', 'centroid_x','centroid_y')
 
+class AreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Area
+        fields = ('size', 'avg_n_cooperative_server')
 
 
 '''
