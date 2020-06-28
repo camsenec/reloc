@@ -1,23 +1,10 @@
-# Edge Manager
+# Data-analysis-enabled Notification Generation and Delivery System for Edge Computing
 
 ## Overview
-
-By the Edge Manager service, clients are assigned to servers so that edge server resources.
-
-After the assignment, each client manages their own content cache on the assigned server. 
-
-The content cache often shared among multiple clients to save the cache capacity consumption.
-
-The assignment is based on RLCCA algorithm [1].
-
-
-
-### References
-
-[1] Tomoya Tanaka, Tsutano Takumi, Kamada Tomio, ''Collaborative caching for Pub/Sub system in edge computing'', Proc. in IEICE General Conference, March 2020.
+This system allows real-time and interactive data-analysis-enabled notification delivery among clients such as self-driving car and IoT devices. The importance of real-time notification has been growing for social services and Intelligent Transporting System (ITS). As an advanced version of topic-based Pub/Sub systems, topic-based publish-process-subscribe systems, where published messages are spooled and processed on edge servers, have been proposed to achieve data-driven intelligent notifications. This system allows a topic to be managed on multiple edge servers so that messages are processed near publishers and subscribers, even when publishers are spread over a wide area. Moreover, this system allocate topics adequately on edge servers with limited edge server resources to achieve real-time notifications.
 
 ## Infrastracture
-The Edge Manager is implemented using a web framework Django, which is one of the Python web frameworks and offers high security and scalability. AWS EC2 instances are used as server side which can dynamically adjust resource usage according to user demand. Database is constructed with SQLite. Clients send request to Edge Manager to get server to be connected at regular intervals considering client mobility. 
+This system is implemented with a web framework Django, which is one of the Python web frameworks and offers high security and scalability. AWS EC2 instances are used as server side which can dynamically adjust resource usage according to user demand. Database is constructed with SQLite. Clients send request to Edge Manager to get server to be connected at regular intervals considering client mobility. 
 
 ![infra](https://user-images.githubusercontent.com/27656483/77508784-de3b1400-6eae-11ea-8de7-a501ec7935ec.png)
 
