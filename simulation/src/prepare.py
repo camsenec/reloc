@@ -17,7 +17,7 @@ followers_df_all = pd.read_table('../input/user_sns.txt', names=('follower', 'fo
 
 id_from = 1000000
 #id_to = 1015000
-id_to = 1015000
+id_to = 1100000
 limit = 5
 
 #idが id_from ~ id_toのユーザーを抽出
@@ -75,7 +75,7 @@ sigma = np.diag(sigma)
 predicted_ratings = np.dot(np.dot(U, sigma), Vt)
 svd_preds_df = pd.DataFrame(predicted_ratings, columns = followers_pivot_matrix_df.columns, index=followers_pivot_matrix_df.index)
 
-related_user_num = 1
+related_user_num = 100
 res = pd.DataFrame(columns=['related_clients'])
 for client_id in svd_preds_df.keys():
     sorted_client_predictions = list(svd_preds_df[client_id].sort_values(ascending=False).head(related_user_num).keys())
