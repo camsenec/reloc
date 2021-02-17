@@ -1,5 +1,6 @@
 simulation/input/*
 simulation/out/*
+log/*
 
 # Created by https://www.gitignore.io
 
