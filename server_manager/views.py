@@ -182,10 +182,10 @@ class ClientViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(clients, many = True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    #シミュレーション用API
+    #API for simulation
     @action(detail=False, methods=["post"])
     def post_from_simulator(self, request):
-        application_id = request.GET['application_id'] #シミュレーター上では指定
+        application_id = request.GET['application_id']
         client_id = request.POST['client_id']
 
         x = request.POST['x']
@@ -196,7 +196,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         else:
             return Response(status=status.HTTP_200_OK)
 
-        #home serverの割り当て
+        #assigne home server (temporal home server assigned by RA algorithm)
         new_home_server_id = allocator.allocate(application_id, client_id, strategy="RA", weight=0)
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
