@@ -3,7 +3,6 @@ from server_manager.models import Application, EdgeServer, Client, Cluster
 from django.db.models import Q
 from django_pandas.io import read_frame
 from django_bulk_update.helper import bulk_update
-
 from sklearn.cluster import KMeans
 
 import random
@@ -13,15 +12,13 @@ import numpy as np
 
 from strategy import selector
 
-import matplotlib
-matplotlib.use('Agg')
+import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 VISUALIZE=False
 DEBUG=False
 X_MAX = 100
 Y_MAX = 100
-k = 3
 colmap = {1: 'r', 2: 'g', 3: 'b', 4:'y', 5:'m', 6:'c'}
 
 #サーバーサイド陽
@@ -47,8 +44,7 @@ def clustering(application_id):
 
     df = read_frame(EdgeServer.objects.all(),
         fieldnames= ['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'cluster_id'])
-    df_client = read_frame(Client.objects.all(),
-        fieldnames= ['application_id', 'client_id', 'x', 'y', 'home'])
+    #df_client = read_frame(Client.objects.all(), fieldnames= ['application_id', 'client_id', 'x', 'y', 'home'])
 
     #K-Means Clustering
     kmeans = KMeans(n_clusters, random_state=0)

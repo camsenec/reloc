@@ -23,17 +23,15 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
     queryset = EdgeServer.objects.all()
     serializer_class = EdgeServerSerializer
 
-    #エッジサーバーから呼び出されるAPI
     @action(detail=False, methods=["post"])
     def post(self, request):
-        application_id = request.GET['application_id'] #シミュレーター上では指定
+        application_id = request.GET['application_id']
 
         if EdgeServer.objects.all().count() == 0:
             server_id = 1
         else:
-            server_id = EdgeServer.objects.all().aggregate(Max('server_id'))['server_id__max'] + 1 #server_idは各アプリケーションで指定
+            server_id = EdgeServer.objects.all().aggregate(Max('server_id'))['server_id__max'] + 1 
 
-        #データの生成
         x = request.POST['x']
         y = request.POST['y']
         capacity = request.POST['capacity']
@@ -43,20 +41,18 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         allocator.clustering(application_id)
 
         serializer = self.get_serializer(server)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    #定期的な位置更新
     @action(detail=False, methods=["put"])
-    def update_used(self, request):
+    def update_state(self, request):
         application_id = request.GET["application_id"]
         server_id = request.GET["server_id"]
         server = self.queryset.get(Q(application_id = application_id), Q(server_id = server_id))
         used = request.POST["used"]
-        capacity = request.POST["capacity"]
+        connection = request.POST["connection"]
 
         server.used = used
-        server.capacity = capacity
+        server.connection = connection
         server.save()
 
         allocator.clustering(application_id)
@@ -98,7 +94,7 @@ class ClientViewSet(viewsets.ModelViewSet):
     #クライアントの登録
     @action(detail=False, methods=["post"])
     def post(self, request):
-        application_id = request.GET['application_id'] #シミュレーター上では指定
+        application_id = request.GET['application_id']
 
         if  Client.objects.all().count() == 0:
             client_id = 1
@@ -140,16 +136,8 @@ class ClientViewSet(viewsets.ModelViewSet):
 
         application_id = request.GET["application_id"]
         client_id = request.GET["client_id"]
-        weight = int(request.POST['weight'])
         client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
 
-        '''
-        1. 該当クライアントのデータを取得
-        2. 現在位置をもとに, home serverを更新
-        '''
-
-        #application_idの指定により, 領域の大きさ（Kの大きさ）をテーブルより取得
-        #一旦ランダムに配置
         new_home_server_id = allocator.allocate(application_id, client_id, strategy_main, weight)
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
