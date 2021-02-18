@@ -25,7 +25,6 @@ class Area(models.Model):
         return str(self.size);
 
 class Application(models.Model):
-    #id = models.AutoField(primary_key=True)
     application_id = models.IntegerField(default=1)
     name = models.CharField(max_length = 128)
     area = models.ForeignKey(Area, on_delete=models.CASCADE, default = 1)
@@ -44,6 +43,7 @@ class EdgeServer(models.Model):
     y = models.FloatField()
     capacity = models.FloatField()
     used = models.FloatField()
+    connection = models.IntegerField(default=0)
     cluster_id = models.IntegerField(default=1)
 
     def __str__(self):
@@ -59,24 +59,6 @@ class Client(models.Model):
     x = models.FloatField()
     y = models.FloatField()
     home = models.ForeignKey(EdgeServer, on_delete=models.CASCADE, blank = True, null = True)
-    #EdgeServerにClientがぶら下がる
-    #serverを外部キーにして参照
 
     def __str__(self):
         return str(self.client_id)
-
-## Simulation陽
-
-
-'''
-Yser
-friends = ForeignKey(FRIENDS)
-
-review は wineにぶら下がっている
-reviewのところにwineをforeign keyとして背負う
-
-同様に, client, edgeserverのところにapplicationをforeign keyとして背負う
-違う, 多対多の関係
-edgeserverは, 多くのアプリケーションを管理する
-Application
-'''
