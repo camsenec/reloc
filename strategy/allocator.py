@@ -80,7 +80,7 @@ def clustering(application_id):
 
 
 # return the assigned home server id
-def allocate(application_id, client_id, strategy):
+def allocate(application_id, client_id, strategy, plus_connection, plus_used):
 
     client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
 
@@ -99,7 +99,7 @@ def allocate(application_id, client_id, strategy):
     elif strategy == "RLCA" or strategy == "RCA":
         allocated_server_id = selector.select_in_cluster(client_id, cluster_label)
     elif strategy == "RLCCA":
-        allocated_server_id = selector.select_in_cluster_with_cooperation(client_id, cluster_label)
+        allocated_server_id = selector.select_in_cluster_with_cooperation(client_id, cluster_label, plus_connection, plus_used)
     else:
         allocated_server_id = selector.random_select()
     

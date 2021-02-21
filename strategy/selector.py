@@ -47,25 +47,28 @@ def select_in_cluster(client_id, cluster_label):
 
     for id in related_clients_list[:100]:
         client = Client.objects.get(client_id = id)
-        if client.home.server_id in servers_in_cluster and client.home.connection <= (B-1):
+        if client.home.server_id in servers_in_cluster:
             allocated_server_id = client.home.server_id
             break
 
     return allocated_server_id
 
 #RLCCA (Relation and Location conscious Cooperative Assignment)
-def select_in_cluster_with_cooperation(client_id, cluster_label, plus_connection = 1, plus_used = 0, current_home_id = None):
+def select_in_cluster_with_cooperation(client_id, cluster_label, plus_connection = 1, plus_used = 0):
     cluster = EdgeServer.objects.filter(cluster_id = cluster_label)
     cluster_df = read_frame(cluster, fieldnames=['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'cluster_id'])
     servers_in_cluster = cluster_df['server_id'].values
     relations_df = pd.read_csv('./simulation/out/relationship.csv', names = ['client_id', 'related_clients'], index_col = 'client_id')
+    
+    client = Client.objects.get(client_id = client_id)
+    current_home_id = client.home.server_id
 
     allocated_server_id = cluster_df.loc[cluster_df['capacity'].idxmin()]['server_id']
     related_clients_list = list(map(int, relations_df.loc[int(client_id),'related_clients'].strip('[]').split(', ')))
 
     for id in related_clients_list[:100]:
         client = Client.objects.get(client_id = id)
-        if client.home.server_id in servers_in_cluster and client.home.connection + plus_connection <= (B-1) and client.home.used + plus_used <= A * 0.8:
+        if client.home.server_id in servers_in_cluster and client.home.connection + plus_connection <= B and client.home.used + plus_used <= A * 0.8:
             allocated_server_id = client.home.server_id
             if allocated_server_id != current_home_id:
                 break
