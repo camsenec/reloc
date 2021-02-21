@@ -21,9 +21,7 @@ X_MAX = 100
 Y_MAX = 100
 colmap = {1: 'r', 2: 'g', 3: 'b', 4:'y', 5:'m', 6:'c'}
 
-#サーバーサイド陽
-#アプリケーションごとに, size(avg_n_coop_server)の数に基づいて, 事前にサーバーをクラスタリングしておく
-#特に計算速度は意識しなくても良い
+
 def clustering(application_id):
     app = Application.objects.get(application_id = application_id)
 
@@ -82,7 +80,7 @@ def clustering(application_id):
 
 
 # return the assigned home server id
-def allocate(application_id, client_id, strategy, weight):
+def allocate(application_id, client_id, strategy):
 
     client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
 
@@ -101,7 +99,7 @@ def allocate(application_id, client_id, strategy, weight):
     elif strategy == "RLCA" or strategy == "RCA":
         allocated_server_id = selector.select_in_cluster(client_id, cluster_label)
     elif strategy == "RLCCA":
-        allocated_server_id = selector.select_in_cluster_with_cooperation(client_id, cluster_label, 160, weight)
+        allocated_server_id = selector.select_in_cluster_with_cooperation(client_id, cluster_label)
     else:
         allocated_server_id = selector.random_select()
     

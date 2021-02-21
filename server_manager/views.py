@@ -17,8 +17,6 @@ from rest_framework.decorators import action
 strategy_main = "RLCA"
 #strategy_main = "RLCCA" #Relaiton and Locality concious Cooperative Client Assingment
 
-# Create your views here.
-
 class EdgeServerViewSet(viewsets.ModelViewSet):
     queryset = EdgeServer.objects.all()
     serializer_class = EdgeServerSerializer
@@ -55,11 +53,10 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         server.connection = connection
         server.save()
 
-        allocator.clustering(application_id)
         serializer = self.get_serializer(server)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    #データベース管理用API
+    #API for Management
     @action(detail=False, methods=["get"])
     def get(self, request):
         application_id = request.GET["application_id"]
@@ -91,7 +88,7 @@ class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
 
-    #クライアントの登録
+    
     @action(detail=False, methods=["post"])
     def post(self, request):
         application_id = request.GET['application_id']
@@ -106,15 +103,14 @@ class ClientViewSet(viewsets.ModelViewSet):
 
         client = Client.objects.create(application_id = application_id, client_id = client_id, x = x, y = y)
 
-        #home serverの割り当て
-        new_home_server_id = allocator.allocate(application_id, client_id, strategy="RA", weight=0)
+        new_home_server_id = allocator.allocate(application_id, client_id, strategy="RA")
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
 
         serializer = self.get_serializer(client)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    #定期的な位置更新
+
     @action(detail=False, methods=["put"])
     def update_location(self, request):
         application_id = request.GET["application_id"]
@@ -130,15 +126,13 @@ class ClientViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(client)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    #定期的なhome serverの更新
     @action(detail=False, methods=["put"])
     def update_home(self, request):
-
         application_id = request.GET["application_id"]
         client_id = request.GET["client_id"]
         client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
 
-        new_home_server_id = allocator.allocate(application_id, client_id, strategy_main, weight)
+        new_home_server_id = allocator.allocate(application_id, client_id, strategy_main)
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
 
@@ -146,7 +140,6 @@ class ClientViewSet(viewsets.ModelViewSet):
         allocator.clustering(application_id)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    #データベース管理用API
     @action(detail=False, methods=["get"])
     def get(self, request, pk = None):
         application_id = request.GET["application_id"]
@@ -185,7 +178,7 @@ class ClientViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK)
 
         #assigne home server (temporal home server assigned by RA algorithm)
-        new_home_server_id = allocator.allocate(application_id, client_id, strategy="RA", weight=0)
+        new_home_server_id = allocator.allocate(application_id, client_id, strategy="RA")
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
 
