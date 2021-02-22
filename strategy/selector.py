@@ -23,7 +23,7 @@ def select_nearest_server(client_id):
     client = Client.objects.get(client_id=client_id)
     dist = []
     for server in servers:
-        servers.append(math.sqrt((client.x - server.x)**2 + (client.y - server.y)**2))
+        dist.append(math.sqrt((client.x - server.x)**2 + (client.y - server.y)**2))
     allocated_server_id = dist.index(min(dist)) + 1
     return allocated_server_id
 
@@ -42,7 +42,7 @@ def select_in_cluster(client_id, cluster_label):
 
     relations_df = pd.read_csv('./simulation/out/relationship.csv', names = ['client_id', 'related_clients'], index_col = 'client_id')
     
-    allocated_server_id = cluster_df.loc[cluster_df['capacity'].idxmin()]['server_id']
+    allocated_server_id = cluster_df.loc[cluster_df['used'].idxmin()]['server_id']
     related_clients_list = list(map(int, relations_df.loc[int(client_id),'related_clients'].strip('[]').split(', ')))
 
     for id in related_clients_list[:100]:
@@ -63,12 +63,13 @@ def select_in_cluster_with_cooperation(client_id, cluster_label, plus_connection
     client = Client.objects.get(client_id = client_id)
     current_home_id = client.home.server_id
 
-    allocated_server_id = cluster_df.loc[cluster_df['capacity'].idxmin()]['server_id']
+    allocated_server_id = cluster_df.loc[cluster_df['used'].idxmin()]['server_id']
     related_clients_list = list(map(int, relations_df.loc[int(client_id),'related_clients'].strip('[]').split(', ')))
+    print(EdgeServer.objects.get(server_id = allocated_server_id).used)
 
     for id in related_clients_list[:100]:
         client = Client.objects.get(client_id = id)
-        if client.home.server_id in servers_in_cluster and client.home.connection + plus_connection <= B and client.home.used + plus_used <= A * 0.8:
+        if client.home.server_id in servers_in_cluster and client.home.connection + plus_connection <= B * 0.8 and client.home.used + plus_used <= A * 0.8:
             allocated_server_id = client.home.server_id
             if allocated_server_id != current_home_id:
                 break

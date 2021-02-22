@@ -83,7 +83,6 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
 
 
 
-#クライアントサイドのアプリケーションから呼び出されるAPI
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer

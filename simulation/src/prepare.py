@@ -10,7 +10,6 @@ id_from = 1000000
 id_to = 1100000
 limit = 5
 
-#idが id_from ~ id_toのユーザーを抽出
 df = followers_df_all[followers_df_all["followee"] > id_from]
 upper = df[df["followee"] <= id_to]
 lower = upper[upper["follower"] > id_from]
