@@ -14,8 +14,8 @@ from rest_framework.decorators import action
 #strategy_main = "RA"
 #strategy_main = "NS"
 #strategy_main = "LCA"
-strategy_main = "RLCA"
-#strategy_main = "RLCCA" #Relaiton and Locality concious Cooperative Client Assingment
+#strategy_main = "RLCA"
+strategy_main = "RLCCA" #Relaiton and Locality concious Cooperative Client Assingment
 
 class EdgeServerViewSet(viewsets.ModelViewSet):
     queryset = EdgeServer.objects.all()
@@ -28,7 +28,7 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         if EdgeServer.objects.all().count() == 0:
             server_id = 1
         else:
-            server_id = EdgeServer.objects.all().aggregate(Max('server_id'))['server_id__max'] + 1 
+            server_id = EdgeServer.objects.all().aggregate(Max('server_id'))['server_id__max'] + 1
 
         x = request.POST['x']
         y = request.POST['y']
@@ -97,7 +97,6 @@ class ClientViewSet(viewsets.ModelViewSet):
             client_id = 1
         else:
              client_id = Client.objects.all().aggregate(Max('client_id'))['client_id__max'] + 1
-        print('client_id', client_id)
         x = request.POST['x']
         y = request.POST['y']
 
@@ -108,6 +107,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         client.save()
 
         serializer = self.get_serializer(client)
+        print(client)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -132,8 +132,8 @@ class ClientViewSet(viewsets.ModelViewSet):
         client_id = request.GET["client_id"]
         client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
         
-        plus_used = request.POST["plus_used"]
-        plus_connection = request.POST["plus_connection"]
+        plus_used = int(request.POST["plus_used"])
+        plus_connection = int(request.POST["plus_connection"])
         new_home_server_id = allocator.allocate(application_id, client_id, strategy_main, plus_connection, plus_used)
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
@@ -183,6 +183,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         new_home_server_id = allocator.allocate(application_id, client_id, strategy="RA")
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
+        print(client, flush=True)
 
         serializer = self.get_serializer(client)
         return Response(serializer.data, status=status.HTTP_200_OK)

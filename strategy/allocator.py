@@ -80,16 +80,16 @@ def clustering(application_id):
 
 
 # return the assigned home server id
-def allocate(application_id, client_id, strategy, plus_connection, plus_used):
+def allocate(application_id, client_id, strategy, plus_connection=1, plus_used=0):
 
     client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
 
-    print("Searching cluster...")
+    print("Searching cluster...", flush=True)
     cluster_label = my_cluster(application_id, client.x, client.y)
 
     # For RLCA, set avg_n_coop_server to a big value.
     # Assign home server
-    print("Select...")
+    print("Select...", flush=True)
     if strategy == "RA":
         allocated_server_id = selector.random_select()
     elif strategy == "NS":
