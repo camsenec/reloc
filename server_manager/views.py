@@ -139,7 +139,17 @@ class ClientViewSet(viewsets.ModelViewSet):
         client.save()
 
         serializer = self.get_serializer(client)
-        allocator.clustering(application_id)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["put"])
+    def update_state(self, request):
+        application_id = request.GET["application_id"]
+        client_id = request.GET["client_id"]
+        client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
+        client.home = EdgeServer.objects.get(server_id = int(request.POST["home"]))
+        client.save()
+
+        serializer = self.get_serializer(client)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"])
