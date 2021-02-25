@@ -98,6 +98,8 @@ def allocate(application_id, client_id, strategy, plus_connection=1, plus_used=0
         allocated_server_id = selector.random_select_in_cluster(cluster_label)
     elif strategy == "RLCA" or strategy == "RCA":
         allocated_server_id = selector.select_in_cluster(client_id, cluster_label)
+    elif strategy == "LCCA":
+        allocated_server_id = selector.select_in_cluster_with_no_relation(client_id, cluster_label, plus_connection, plus_used)
     elif strategy == "RLCCA":
         allocated_server_id = selector.select_in_cluster_with_cooperation(client_id, cluster_label, plus_connection, plus_used)
     else:
