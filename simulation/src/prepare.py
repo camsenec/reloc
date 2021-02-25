@@ -7,7 +7,9 @@ print("Loading...")
 followers_df_all = pd.read_table('../input/user_sns.txt', names=('follower', 'followee'))
 
 id_from = 1000000
-id_to = 1100000
+id_to = 1100000 #914group
+#id_to = 1025000 #10 gruop
+#id_to = 1021000 #5 gruop
 limit = 5
 
 df = followers_df_all[followers_df_all["followee"] > id_from]
