@@ -12,10 +12,11 @@ from strategy import allocator
 from rest_framework.decorators import action
 
 #strategy_main = "RA"
-strategy_main = "NS"
+#strategy_main = "NS"
 #strategy_main = "LCA"
 #strategy_main = "RLCA"
-#strategy_main = "RLCCA" #Relaiton and Locality concious Cooperative Client Assingment
+#strategy_main = "LCCA"
+strategy_main = "RLCCA" #Relaiton and Locality concious Cooperative Client Assingment
 
 class EdgeServerViewSet(viewsets.ModelViewSet):
     queryset = EdgeServer.objects.all()
@@ -33,7 +34,7 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         x = request.POST['x']
         y = request.POST['y']
         capacity = request.POST['capacity']
-        server = EdgeServer.objects.create(application_id = application_id, server_id = server_id, x = x, y = y, capacity = capacity, used = 0)
+        server = EdgeServer.objects.create(application_id = application_id, server_id = server_id, x = x, y = y, capacity = capacity, used = 0, connection = 0)
         server.save()
 
         allocator.clustering(application_id)
@@ -131,8 +132,8 @@ class ClientViewSet(viewsets.ModelViewSet):
         client_id = request.GET["client_id"]
         client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
         
-        plus_used = int(request.POST["plus_used"])
         plus_connection = int(request.POST["plus_connection"])
+        plus_used = float(request.POST["plus_used"])
         new_home_server_id = allocator.allocate(application_id, client_id, strategy_main, plus_connection, plus_used)
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
@@ -186,7 +187,9 @@ class ClientViewSet(viewsets.ModelViewSet):
         if len(Client.objects.filter(Q(application_id = application_id), Q(client_id = client_id))) == 0:
             client = Client.objects.create(application_id = application_id, client_id = client_id, x = x, y = y)
         else:
-            return Response(status=status.HTTP_200_OK)
+            client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
+            client.x = x
+            client.y = y 
 
         #assigne home server (temporal home server assigned by RA algorithm)
         new_home_server_id = allocator.allocate(application_id, client_id, strategy="RA")

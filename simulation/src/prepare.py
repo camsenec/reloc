@@ -5,12 +5,16 @@ import itertools
 
 print("Loading...")
 followers_df_all = pd.read_table('../input/user_sns.txt', names=('follower', 'followee'))
+print("Loaded")
 
 id_from = 1000000
-id_to = 1100000 #914group
+#id_to = 1100000 #914 group
+#id_to = 1046170 #100 group
 #id_to = 1025000 #10 gruop
 #id_to = 1021000 #5 gruop
-limit = 5
+#id_to = 1146580
+id_to = 1079100
+limit = 10
 
 df = followers_df_all[followers_df_all["followee"] > id_from]
 upper = df[df["followee"] <= id_to]
@@ -45,6 +49,7 @@ sender_receiver = pd.DataFrame(pairs, columns= ["sender","receiver"]); sender_re
 pivot_table = sender_receiver.pivot_table(values="count",index='sender', columns='receiver', aggfunc = 'count').fillna(0)
 pivot_matrix = pivot_table.values
 
+print("Calculating...")
 # Matrix Factorization by SVD (Singular Value Decomposition)
 NUMBER_OF_FACTORS_MF = int(pivot_table.shape[0] * (0.1))
 U, sigma, Vt = svds(pivot_matrix, k = NUMBER_OF_FACTORS_MF)
@@ -59,3 +64,6 @@ for client_id in svd_preds_df.keys():
     res.loc[client_id] = [sorted_client_predictions]
 
 res.to_csv('../out/relationship.csv', header = False, index=True)
+
+print("Done")
+print(len(groups_df), "groups created")

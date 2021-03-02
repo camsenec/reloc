@@ -41,7 +41,7 @@ def clustering(application_id):
         print("number_of_clusters : ", n_clusters)
 
     df = read_frame(EdgeServer.objects.all(),
-        fieldnames= ['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'cluster_id'])
+        fieldnames= ['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'connection', 'cluster_id'])
     #df_client = read_frame(Client.objects.all(), fieldnames= ['application_id', 'client_id', 'x', 'y', 'home'])
 
     #K-Means Clustering
@@ -98,6 +98,8 @@ def allocate(application_id, client_id, strategy, plus_connection=1, plus_used=0
         allocated_server_id = selector.random_select_in_cluster(cluster_label)
     elif strategy == "RLCA" or strategy == "RCA":
         allocated_server_id = selector.select_in_cluster(client_id, cluster_label)
+    elif strategy == "LCCA":
+        allocated_server_id = selector.select_in_cluster_with_no_relation(client_id, cluster_label, plus_connection, plus_used)
     elif strategy == "RLCCA":
         allocated_server_id = selector.select_in_cluster_with_cooperation(client_id, cluster_label, plus_connection, plus_used)
     else:
@@ -107,7 +109,7 @@ def allocate(application_id, client_id, strategy, plus_connection=1, plus_used=0
     if VISUALIZE:
         print("visualizing...")
         df_all = read_frame(EdgeServer.objects.all(),
-        fieldnames = ['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'cluster_id'])
+        fieldnames = ['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'connection', 'cluster_id'])
         plt.figure(figsize=(10, 7))
         for label in np.unique(df_all['cluster_id']):
             plt.scatter(df_all[df_all['cluster_id'] == label]['x'], df_all[df_all['cluster_id'] == label]['y'],  label = "cluster-" + str(label))
