@@ -13,7 +13,7 @@ B = 100
 #RA (Random Assignment)
 def random_select():
     servers = EdgeServer.objects.all()
-    df = read_frame(servers, fieldnames=['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'conncetion', 'cluster_id'])
+    df = read_frame(servers, fieldnames=['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'connection', 'cluster_id'])
     allocated_server_id = df.iloc[int(random.random() * df.shape[0])]['server_id']
     return allocated_server_id
 
@@ -70,7 +70,7 @@ def select_in_cluster_with_no_relation(client_id, cluster_label, plus_connection
             break
    
     related_clients_list = list(map(int, relations_df.loc[int(client_id),'related_clients'].strip('[]').split(', ')))
-    print(EdgeServer.objects.get(server_id = allocated_server_id).used)
+    #print(EdgeServer.objects.get(server_id = allocated_server_id).used)
 
     while True:
         client = Client.objects.get(client_id = id)
@@ -95,12 +95,12 @@ def select_in_cluster_with_cooperation(client_id, cluster_label, plus_connection
     allocated_server_id = cluster_df.loc[cluster_df['used'].idxmin()]['server_id']
     cluster_df = cluster_df.sort_values(["used"])
     for i in range(len(cluster_df)):
-        if cluster.iloc[i]["connection"] <= B:
+        if cluster_df.iloc[i]["connection"] <= B:
             allocated_server_id = cluster_df.iloc[i]['server_id']
             break
    
     related_clients_list = list(map(int, relations_df.loc[int(client_id),'related_clients'].strip('[]').split(', ')))
-    print(EdgeServer.objects.get(server_id = allocated_server_id).used)
+    #print(EdgeServer.objects.get(server_id = allocated_server_id).used)
 
     for id in related_clients_list[:100]:
         client = Client.objects.get(client_id = id)
