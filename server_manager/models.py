@@ -44,6 +44,7 @@ class EdgeServer(models.Model):
     capacity = models.FloatField()
     used = models.FloatField()
     connection = models.IntegerField(default=0)
+    cp = models.FloatField(default=0)
     cluster_id = models.IntegerField(default=1)
 
     def __str__(self):

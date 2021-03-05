@@ -34,7 +34,7 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         x = request.POST['x']
         y = request.POST['y']
         capacity = request.POST['capacity']
-        server = EdgeServer.objects.create(application_id = application_id, server_id = server_id, x = x, y = y, capacity = capacity, used = 0, connection = 0)
+        server = EdgeServer.objects.create(application_id = application_id, server_id = server_id, x = x, y = y, capacity = capacity, used = 0, connection = 0, cp = 0)
         server.save()
 
         allocator.clustering(application_id)
@@ -49,9 +49,11 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         server = self.queryset.get(Q(application_id = application_id), Q(server_id = server_id))
         used = request.POST["used"]
         connection = request.POST["connection"]
+        cp = request.POST["cp"]
 
         server.used = used
         server.connection = connection
+        server.cp = cp
         server.save()
 
         serializer = self.get_serializer(server)
@@ -132,9 +134,9 @@ class ClientViewSet(viewsets.ModelViewSet):
         client_id = request.GET["client_id"]
         client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
         
-        plus_connection = int(request.POST["plus_connection"])
+        plus_cp = int(request.POST["plus_cp"])
         plus_used = float(request.POST["plus_used"])
-        new_home_server_id = allocator.allocate(application_id, client_id, strategy_main, plus_connection, plus_used)
+        new_home_server_id = allocator.allocate(application_id, client_id, strategy_main, plus_cp, plus_used)
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
 
