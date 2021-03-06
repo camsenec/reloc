@@ -13,7 +13,9 @@ id_from = 1000000
 #id_to = 1025000 #10 gruop
 #id_to = 1021000 #5 gruop
 #id_to = 1146580
-id_to = 1079100
+id_to = 1079100 #100 group (10)
+#id_to = 1072733
+#limit = 5
 limit = 10
 
 df = followers_df_all[followers_df_all["followee"] > id_from]

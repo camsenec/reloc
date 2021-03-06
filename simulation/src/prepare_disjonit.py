@@ -37,7 +37,7 @@ groups_df.to_csv("../out/tx_log.csv", index=True, header=False)
 # append self
 for send_from in groups.keys():
     groups[send_from].append(send_from)
-    
+
 client_list = []
 for i in range(len(groups)):
     g = groups.iloc[i]

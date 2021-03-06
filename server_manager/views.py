@@ -134,7 +134,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         client_id = request.GET["client_id"]
         client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
         
-        plus_cp = int(request.POST["plus_cp"])
+        plus_cp = float(request.POST["plus_cp"])
         plus_used = float(request.POST["plus_used"])
         new_home_server_id = allocator.allocate(application_id, client_id, strategy_main, plus_cp, plus_used)
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)

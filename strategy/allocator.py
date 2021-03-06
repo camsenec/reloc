@@ -17,8 +17,8 @@ import matplotlib.pyplot as plt
 
 VISUALIZE=False
 DEBUG=False
-X_MAX = 16
-Y_MAX = 16
+X_MAX = 25
+Y_MAX = 25
 colmap = {1: 'r', 2: 'g', 3: 'b', 4:'y', 5:'m', 6:'c'}
 
 

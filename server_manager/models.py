@@ -63,3 +63,5 @@ class Client(models.Model):
 
     def __str__(self):
         return str(self.client_id)
+
+
