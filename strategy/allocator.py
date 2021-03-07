@@ -100,7 +100,7 @@ def allocate(application_id, client_id, strategy, plus_cp=0, plus_used=0):
         allocated_server_id = selector.select_in_cluster(client_id, cluster_label)
     elif strategy == "LCCA":
         allocated_server_id = selector.select_in_cluster_with_no_relation(client_id, cluster_label, plus_cp, plus_used)
-    elif strategy == "RLCCA":
+    elif strategy == "RLCCA" or strategy == "OTOS":
         allocated_server_id = selector.select_in_cluster_with_cooperation(client_id, cluster_label, plus_cp, plus_used)
     else:
         allocated_server_id = selector.random_select()

@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import EdgeServer, Client, Cluster, Area
 
-
 class EdgeServerSerializer(serializers.ModelSerializer):
     class Meta:
         model = EdgeServer

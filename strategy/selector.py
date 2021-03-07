@@ -7,8 +7,8 @@ import pandas as pd
 import math
 import numpy as np
 
-A = 64
-B = 10000
+A = 3200
+B = 320000
 
 #RA (Random Assignment)
 def random_select():
@@ -45,7 +45,7 @@ def select_in_cluster(client_id, cluster_label):
     allocated_server_id = cluster_df.iloc[int(random.random() * cluster_df.shape[0])]['server_id']
     related_clients_list = list(map(int, relations_df.loc[int(client_id),'related_clients'].strip('[]').split(', ')))
 
-    for id in related_clients_list[:100]:
+    for id in related_clients_list[:1000]:
         client = Client.objects.get(client_id = id)
         if client.home.server_id in servers_in_cluster:
             allocated_server_id = client.home.server_id
@@ -81,6 +81,7 @@ def select_in_cluster_with_no_relation(client_id, cluster_label, plus_cp = 0, pl
 
 #RLCCA (Relation and Location conscious Cooperative Assignment)
 def select_in_cluster_with_cooperation(client_id, cluster_label, plus_cp = 0, plus_used = 0):
+    print("fdjsiaofjdiosafjoidsajfiojfoiodsajfioajfoidaj")
     cluster = EdgeServer.objects.filter(cluster_id = cluster_label)
     cluster_df = read_frame(cluster, fieldnames=['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'connection', 'cp', 'cluster_id'])
     servers_in_cluster = cluster_df['server_id'].values
@@ -99,11 +100,14 @@ def select_in_cluster_with_cooperation(client_id, cluster_label, plus_cp = 0, pl
     related_clients_list = list(map(int, relations_df.loc[int(client_id),'related_clients'].strip('[]').split(', ')))
     #print(EdgeServer.objects.get(server_id = allocated_server_id).used)
 
-    for id in related_clients_list[:100]:
+    for id in related_clients_list[:1000]:
         client = Client.objects.get(client_id = id)
+        if not client.flag:
+            continue
         if client.home.server_id in servers_in_cluster and client.home.cp + plus_cp <= B * 0.8 and client.home.used + plus_used <= A * 0.8:
             allocated_server_id = client.home.server_id
             if allocated_server_id != current_home_id:
+                print(allocated_server_id)
                 break
 
     return allocated_server_id

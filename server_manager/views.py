@@ -16,7 +16,7 @@ from rest_framework.decorators import action
 #strategy_main = "LCA"
 #strategy_main = "RLCA"
 #strategy_main = "LCCA"
-strategy_main = "RLCCA" #Relaiton and Locality concious Cooperative Client Assingment
+#strategy_main = "RLCCA" #Relaiton and Locality concious Cooperative Client Assingment
 
 class EdgeServerViewSet(viewsets.ModelViewSet):
     queryset = EdgeServer.objects.all()
@@ -136,8 +136,9 @@ class ClientViewSet(viewsets.ModelViewSet):
         
         plus_cp = float(request.POST["plus_cp"])
         plus_used = float(request.POST["plus_used"])
-        new_home_server_id = allocator.allocate(application_id, client_id, strategy_main, plus_cp, plus_used)
+        new_home_server_id = allocator.allocate(application_id, client_id, Area.objects.get(size=2).strategy, plus_cp, plus_used)
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
+        client.flag = True
         client.save()
 
         serializer = self.get_serializer(client)
@@ -232,3 +233,16 @@ class AreaViewSet(viewsets.ModelViewSet):
         area.save()
         serializer = self.get_serializer(area)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["put"])
+    def update_strategy(self,request):
+        strategy=request.POST['strategy']
+        area = Area.objects.get(size = 2)
+        area.strategy=strategy
+        area.save()
+        serializer = self.get_serializer(area)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    
+
+    
