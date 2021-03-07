@@ -29,11 +29,12 @@ id_to = 1025000 #[5 group]
 #id_to = 1021000 #5 gruop
 #id_to = 1019000 #3 gruop
 #id_to = 1011000 #1 group
-#id_to = 1146580
+id_to = 1110000 #100(5)
+id_to = 1175000 #64(10)
 #id_to = 1079100 #100 group (10)
 #id_to = 1072733
-limit = 5
-#limit = 10
+#limit = 5
+limit = 10
 
 df = followers_df_all[followers_df_all["followee"] > id_from]
 upper = df[df["followee"] <= id_to]
@@ -64,11 +65,11 @@ for send_from in groups_tmp.keys():
             l.append(c)
         if send_from in l and len(l) >= limit+1:
             l.remove(send_from)
-            client_list.extend(l)
-            d[send_from] = l
+            client_list.extend(l[:20])
+            d[send_from] = l[:20]
         elif send_from not in l and len(l) >= limit:
-            client_list.extend(l)
-            d[send_from] = l
+            client_list.extend(l[:20])
+            d[send_from] = l[:20]
 
 groups = pd.Series(data=d, name='followee') 
 groups_df = pd.DataFrame(groups).reset_index()

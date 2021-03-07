@@ -81,8 +81,8 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         EdgeServer.objects.filter(application_id=application_id).delete()
 
         servers = EdgeServer.objects.filter(application_id=application_id)
-        serializer = self.get_serializer(servers, many = True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        #serializer = self.get_serializer(servers, many = True)
+        return Response(status=status.HTTP_200_OK)
 
 
 
@@ -175,8 +175,8 @@ class ClientViewSet(viewsets.ModelViewSet):
         Client.objects.filter(application_id=application_id).delete()
 
         clients = Client.objects.filter(application_id=application_id)
-        serializer = self.get_serializer(clients, many = True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        #serializer = self.get_serializer(clients, many = True)
+        return Response(status=status.HTTP_200_OK)
 
     #API for simulation
     @action(detail=False, methods=["post"])
@@ -218,8 +218,8 @@ class ClusterViewSet(viewsets.ModelViewSet):
         Cluster.objects.filter(application_id=application_id).delete()
 
         clusters = Cluster.objects.filter(application_id=application_id)
-        serializer = self.get_serializer(clusters, many = True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        #serializer = self.get_serializer(clusters, many = True)
+        return Response(status=status.HTTP_200_OK)
 
 class AreaViewSet(viewsets.ModelViewSet):
     queryset = Area.objects.all()

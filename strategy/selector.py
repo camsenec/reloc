@@ -7,8 +7,8 @@ import pandas as pd
 import math
 import numpy as np
 
-A = 3200
-B = 320000
+A = 640
+B = 3200
 
 #RA (Random Assignment)
 def random_select():

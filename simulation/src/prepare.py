@@ -9,16 +9,17 @@ print("Loaded")
 
 id_from = 1000000
 #id_to = 1100000 #914 group
-#id_to = 1046170 #100 group
+id_to = 1046170 #100 group
 #id_to = 1025000 #10 gruop
-id_to = 1021000 #5 gruop
+#id_to = 1021000 #5 gruop
 #id_to = 1019000 #3 gruop
 #id_to = 1011000 #1 group
 #id_to = 1146580
-#id_to = 1079100 #100 group (10)
+id_to = 1079100 #100 group (10)
+#id_to = 1067900 #50 group (10)
 #id_to = 1072733
-limit = 5
-#limit = 10
+#limit = 5
+limit = 10
 
 df = followers_df_all[followers_df_all["followee"] > id_from]
 upper = df[df["followee"] <= id_to]
@@ -55,7 +56,7 @@ pivot_matrix = pivot_table.values
 
 print("Calculating...")
 # Matrix Factorization by SVD (Singular Value Decomposition)
-NUMBER_OF_FACTORS_MF = int(pivot_table.shape[0] * 0.8)
+NUMBER_OF_FACTORS_MF = int(pivot_table.shape[0] * 0.2)
 print(NUMBER_OF_FACTORS_MF)
 U, sigma, Vt = svds(pivot_matrix, k = NUMBER_OF_FACTORS_MF)
 sigma = np.diag(sigma)
