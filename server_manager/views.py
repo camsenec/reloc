@@ -16,7 +16,7 @@ from rest_framework.decorators import action
 #strategy_main = "LCA"
 #strategy_main = "RLCA"
 #strategy_main = "LCCA"
-strategy_main = "RLCCA" #Relaiton and Locality concious Cooperative Client Assingment
+#strategy_main = "RLCCA" #Relaiton and Locality concious Cooperative Client Assingment
 
 class EdgeServerViewSet(viewsets.ModelViewSet):
     queryset = EdgeServer.objects.all()
@@ -34,7 +34,7 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         x = request.POST['x']
         y = request.POST['y']
         capacity = request.POST['capacity']
-        server = EdgeServer.objects.create(application_id = application_id, server_id = server_id, x = x, y = y, capacity = capacity, used = 0, connection = 0)
+        server = EdgeServer.objects.create(application_id = application_id, server_id = server_id, x = x, y = y, capacity = capacity, used = 0, connection = 0, cp = 0)
         server.save()
 
         allocator.clustering(application_id)
@@ -49,9 +49,11 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         server = self.queryset.get(Q(application_id = application_id), Q(server_id = server_id))
         used = request.POST["used"]
         connection = request.POST["connection"]
+        cp = request.POST["cp"]
 
         server.used = used
         server.connection = connection
+        server.cp = cp
         server.save()
 
         serializer = self.get_serializer(server)
@@ -79,8 +81,8 @@ class EdgeServerViewSet(viewsets.ModelViewSet):
         EdgeServer.objects.filter(application_id=application_id).delete()
 
         servers = EdgeServer.objects.filter(application_id=application_id)
-        serializer = self.get_serializer(servers, many = True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        #serializer = self.get_serializer(servers, many = True)
+        return Response(status=status.HTTP_200_OK)
 
 
 
@@ -132,10 +134,11 @@ class ClientViewSet(viewsets.ModelViewSet):
         client_id = request.GET["client_id"]
         client = Client.objects.get(Q(application_id = application_id), Q(client_id = client_id))
         
-        plus_connection = int(request.POST["plus_connection"])
+        plus_cp = float(request.POST["plus_cp"])
         plus_used = float(request.POST["plus_used"])
-        new_home_server_id = allocator.allocate(application_id, client_id, strategy_main, plus_connection, plus_used)
+        new_home_server_id = allocator.allocate(application_id, client_id, Area.objects.get(size=2).strategy, plus_cp, plus_used)
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
+        client.flag = True
         client.save()
 
         serializer = self.get_serializer(client)
@@ -172,8 +175,8 @@ class ClientViewSet(viewsets.ModelViewSet):
         Client.objects.filter(application_id=application_id).delete()
 
         clients = Client.objects.filter(application_id=application_id)
-        serializer = self.get_serializer(clients, many = True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        #serializer = self.get_serializer(clients, many = True)
+        return Response(status=status.HTTP_200_OK)
 
     #API for simulation
     @action(detail=False, methods=["post"])
@@ -215,8 +218,8 @@ class ClusterViewSet(viewsets.ModelViewSet):
         Cluster.objects.filter(application_id=application_id).delete()
 
         clusters = Cluster.objects.filter(application_id=application_id)
-        serializer = self.get_serializer(clusters, many = True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        #serializer = self.get_serializer(clusters, many = True)
+        return Response(status=status.HTTP_200_OK)
 
 class AreaViewSet(viewsets.ModelViewSet):
     queryset = Area.objects.all()
@@ -230,3 +233,16 @@ class AreaViewSet(viewsets.ModelViewSet):
         area.save()
         serializer = self.get_serializer(area)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["put"])
+    def update_strategy(self,request):
+        strategy=request.POST['strategy']
+        area = Area.objects.get(size = 2)
+        area.strategy=strategy
+        area.save()
+        serializer = self.get_serializer(area)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    
+
+    

@@ -7,19 +7,39 @@ print("Loading...")
 followers_df_all = pd.read_table('../input/user_sns.txt', names=('follower', 'followee'))
 print("Loaded")
 
-id_from = 1000000
+##### not -disjoint
+#id_from = 1000000
 #id_to = 1100000 #914 group
-id_to = 1046170 #100 group
+#id_to = 1046170 #100 group
 #id_to = 1025000 #10 gruop
 #id_to = 1021000 #5 gruop
 #id_to = 1019000 #3 gruop
 #id_to = 1011000 #1 group
 #id_to = 1146580
-id_to = 1079100 #100 group (10)
-#id_to = 1067900 #50 group (10)
+#id_to = 1079100 #100 group (10)
+#id_to = 1072733
+#limit = 5
+#limit = 10
+
+##### disjoint
+id_from = 1000000
+#id_to = 1100000 #914 group
+#id_to = 1046170 #100 group
+id_to = 1025000 #[5 group]
+#id_to = 1021000 #5 gruop
+#id_to = 1019000 #3 gruop
+#id_to = 1011000 #1 group
+id_to = 1110000 #100(5)
+id_to = 1175000 #64(10)
+#id_to = 1079100 #100 group (10)
 #id_to = 1072733
 #limit = 5
 limit = 10
+
+import numpy
+
+
+
 
 df = followers_df_all[followers_df_all["followee"] > id_from]
 upper = df[df["followee"] <= id_to]
@@ -34,13 +54,44 @@ selected_df =  followers_df.merge(followers_with_enough_followees_df,
                left_on = 'follower',
                right_on = 'follower')
 
-groups = selected_df.groupby('follower')['followee'].apply(list)
+groups_tmp = selected_df.groupby('follower')['followee'].apply(list)
+
+
+d = {}
+client_list = []
+for send_from in groups_tmp.keys():
+    l = []
+    g = groups_tmp[send_from]
+    for c in g:
+        if c not in client_list:
+            l.append(c)
+    if send_from in l and len(l) >= limit+1:
+        l.remove(send_from)
+        client_list.extend(l)
+        if send_from not in client_list:
+            d[send_from] = l[:20]
+    elif send_from not in l and len(l) >= limit:
+        client_list.extend(l)
+        if send_from not in client_list:
+            d[send_from] =l[:20]
+    client_list.append(send_from)
+
+groups = pd.Series(data=d, name='followee') 
 groups_df = pd.DataFrame(groups).reset_index()
 groups_df.to_csv("../out/tx_log.csv", index=True, header=False)
 
 # append self
 for send_from in groups.keys():
     groups[send_from].append(send_from)
+
+import collections
+ll = []
+for g in groups:
+    ll.extend(g)
+
+print(len(ll))
+print(len(numpy.unique(ll)))
+print(collections.Counter(ll))
 
 # extract all possible pairs in the group
 for send_from in groups.keys():
@@ -56,8 +107,7 @@ pivot_matrix = pivot_table.values
 
 print("Calculating...")
 # Matrix Factorization by SVD (Singular Value Decomposition)
-NUMBER_OF_FACTORS_MF = int(pivot_table.shape[0] * 0.2)
-print(NUMBER_OF_FACTORS_MF)
+NUMBER_OF_FACTORS_MF = int(pivot_table.shape[0] * (0.8))
 U, sigma, Vt = svds(pivot_matrix, k = NUMBER_OF_FACTORS_MF)
 sigma = np.diag(sigma)
 
@@ -73,3 +123,4 @@ res.to_csv('../out/relationship.csv', header = False, index=True)
 
 print("Done")
 print(len(groups_df), "groups created")
+print(groups_df)
