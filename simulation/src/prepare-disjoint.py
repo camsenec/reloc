@@ -36,6 +36,11 @@ id_to = 1175000 #64(10)
 #limit = 5
 limit = 10
 
+import numpy
+
+
+
+
 df = followers_df_all[followers_df_all["followee"] > id_from]
 upper = df[df["followee"] <= id_to]
 lower = upper[upper["follower"] > id_from]
@@ -51,9 +56,6 @@ selected_df =  followers_df.merge(followers_with_enough_followees_df,
 
 groups_tmp = selected_df.groupby('follower')['followee'].apply(list)
 
-# append self
-for send_from in groups_tmp.keys():
-    groups_tmp[send_from].append(send_from)
 
 d = {}
 client_list = []
@@ -63,13 +65,16 @@ for send_from in groups_tmp.keys():
     for c in g:
         if c not in client_list:
             l.append(c)
-        if send_from in l and len(l) >= limit+1:
-            l.remove(send_from)
-            client_list.extend(l[:20])
+    if send_from in l and len(l) >= limit+1:
+        l.remove(send_from)
+        client_list.extend(l)
+        if send_from not in client_list:
             d[send_from] = l[:20]
-        elif send_from not in l and len(l) >= limit:
-            client_list.extend(l[:20])
-            d[send_from] = l[:20]
+    elif send_from not in l and len(l) >= limit:
+        client_list.extend(l)
+        if send_from not in client_list:
+            d[send_from] =l[:20]
+    client_list.append(send_from)
 
 groups = pd.Series(data=d, name='followee') 
 groups_df = pd.DataFrame(groups).reset_index()
@@ -78,6 +83,15 @@ groups_df.to_csv("../out/tx_log.csv", index=True, header=False)
 # append self
 for send_from in groups.keys():
     groups[send_from].append(send_from)
+
+import collections
+ll = []
+for g in groups:
+    ll.extend(g)
+
+print(len(ll))
+print(len(numpy.unique(ll)))
+print(collections.Counter(ll))
 
 # extract all possible pairs in the group
 for send_from in groups.keys():
