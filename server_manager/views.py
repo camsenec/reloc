@@ -2,21 +2,13 @@ from django.shortcuts import render
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from .models import EdgeServer, Client, Cluster, Area
 from django.db.models import Q, Max
 from .serializer import EdgeServerSerializer, ClientSerializer, ClusterSerializer, AreaSerializer
 
 from strategy import allocator
-
-from rest_framework.decorators import action
-
-#strategy_main = "RA"
-#strategy_main = "NS"
-#strategy_main = "LCA"
-#strategy_main = "RLCA"
-#strategy_main = "LCCA"
-#strategy_main = "RLCCA" #Relaiton and Locality concious Cooperative Client Assingment
 
 class EdgeServerViewSet(viewsets.ModelViewSet):
     queryset = EdgeServer.objects.all()
@@ -95,7 +87,7 @@ class ClientViewSet(viewsets.ModelViewSet):
     def post(self, request):
         application_id = request.GET['application_id']
 
-        if  Client.objects.all().count() == 0:
+        if Client.objects.all().count() == 0:
             client_id = 1
         else:
              client_id = Client.objects.all().aggregate(Max('client_id'))['client_id__max'] + 1
@@ -109,7 +101,6 @@ class ClientViewSet(viewsets.ModelViewSet):
         client.save()
 
         serializer = self.get_serializer(client)
-        print(client)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -198,7 +189,6 @@ class ClientViewSet(viewsets.ModelViewSet):
         new_home_server_id = allocator.allocate(application_id, client_id, strategy="RA")
         client.home = EdgeServer.objects.get(server_id = new_home_server_id)
         client.save()
-        print(client, flush=True)
 
         serializer = self.get_serializer(client)
         return Response(serializer.data, status=status.HTTP_200_OK)

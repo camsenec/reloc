@@ -21,12 +21,16 @@ MEDIA_URL = '/simulation/'
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ')u!#zd$wn_j0x_h$1kwmd87z_f4j=3v74e!jfcjt0iisx4s3*_'
+SECRET_KEY = 'secret'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "172.17.0.1"]
+
+host_ip = os.environ.get("HOST_IP")
+if host_ip != None:
+    ALLOWED_HOSTS.append(host_ip)
 
 # Application definition
 

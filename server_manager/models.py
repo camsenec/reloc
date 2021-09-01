@@ -23,7 +23,7 @@ class Area(models.Model):
     strategy = models.CharField(max_length=120, default="RLCCA")
 
     def __str__(self):
-        return str(self.size);
+        return str(self.size)
 
 class Application(models.Model):
     application_id = models.IntegerField(default=1)
