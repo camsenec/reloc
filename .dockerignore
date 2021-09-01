@@ -1,0 +1,12 @@
+simulation/input
+simulation/src
+
+__pycache__
+
+.git
+.gitignore
+.github
+
+Dockerfile
+docker-compose.yml
+.dockerignore
