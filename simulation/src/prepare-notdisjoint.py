@@ -13,9 +13,6 @@ id_to = 1175000 # 64 group (group size: 10 - 20)
 
 group_size_min, group_size_max = 10, 20
 
-import numpy
-from collections import Counter
-
 df = followers_df_all[followers_df_all["followee"] > id_from]
 upper = df[df["followee"] <= id_to]
 lower = upper[upper["follower"] > id_from]
