@@ -5,22 +5,17 @@ from django_pandas.io import read_frame
 from django_bulk_update.helper import bulk_update
 from sklearn.cluster import KMeans
 
-import random
+import random, math
 import pandas as pd
-import math
 import numpy as np
 
 from strategy import selector
+from . import config
 
 import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-VISUALIZE=False
-DEBUG=False
-X_MAX = 25
-Y_MAX = 25
 colmap = {1: 'r', 2: 'g', 3: 'b', 4:'y', 5:'m', 6:'c'}
-
 
 def clustering(application_id):
     app = Application.objects.get(application_id = application_id)
@@ -35,14 +30,13 @@ def clustering(application_id):
     #The number of clusters(K)
     n_clusters = math.ceil(n_servers / avg_n_coop_server)
 
-    if DEBUG:
+    if config.DEBUG:
         print("number_of_servers : ", n_servers)
         print("avg_coop_n_server :", avg_n_coop_server)
         print("number_of_clusters : ", n_clusters)
 
     df = read_frame(EdgeServer.objects.all(),
         fieldnames= ['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'connection', 'cp', 'cluster_id'])
-    #df_client = read_frame(Client.objects.all(), fieldnames= ['application_id', 'client_id', 'x', 'y', 'home'])
 
     #K-Means Clustering
     kmeans = KMeans(n_clusters, random_state=0)
@@ -69,7 +63,7 @@ def clustering(application_id):
         )
 
     #Visualize
-    if VISUALIZE:
+    if config.VISUALIZE:
         plt.figure(figsize=(10, 7))
         for label in np.unique(kmeans.labels_):
             plt.scatter(df[df['cluster_id'] == label]['x'], df[df['cluster_id'] == label]['y'],  label = "cluster-" + str(label))
@@ -89,7 +83,7 @@ def allocate(application_id, client_id, strategy, plus_cp=0, plus_used=0):
 
     # For RLCA, set avg_n_coop_server to a big value.
     # Assign home server
-    print("Select...", flush=True)
+    print("Assigning home server...", flush=True)
     if strategy == "RA":
         allocated_server_id = selector.random_select()
     elif strategy == "NS":
@@ -100,13 +94,13 @@ def allocate(application_id, client_id, strategy, plus_cp=0, plus_used=0):
         allocated_server_id = selector.select_in_cluster(client_id, cluster_label)
     elif strategy == "LCCA":
         allocated_server_id = selector.select_in_cluster_with_no_relation(client_id, cluster_label, plus_cp, plus_used)
-    elif strategy == "RLCCA" or strategy == "OTOS":
+    elif strategy == "RELOC" or strategy == "OTOS":
         allocated_server_id = selector.select_in_cluster_with_cooperation(client_id, cluster_label, plus_cp, plus_used)
     else:
         allocated_server_id = selector.random_select()
     
     
-    if VISUALIZE:
+    if config.VISUALIZE:
         print("visualizing...")
         df_all = read_frame(EdgeServer.objects.all(),
         fieldnames = ['application_id', 'server_id', 'x', 'y', 'capacity', 'used', 'connection', 'cp', 'cluster_id'])
