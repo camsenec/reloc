@@ -46,6 +46,11 @@ docker run -d -p 8080:8080 -e HOST_IP=172.17.0.1 -e EDGE_SERVER_CAPACITY=640 cam
 - `HOST_IP`: your docker host ip
 - `EDGE_SERVER_CAPACITY`: memory capacity assigned to an microservice managed by reloc
 
+### Django admin
+http://localhost:8080/admin
+- username: `user`
+- password: `user`
+
 
 
 ### Simulation
