@@ -23,7 +23,7 @@ Briefly, the delivery delay increases when
 
 
 
-**Note:** This repository was created as an implementation of the system mentioned in our paper (https://onlinelibrary.wiley.com/doi/10.1002/nem.2173). 
+**Note:** This repository was created as an implementation of the system proposed in this paper (https://onlinelibrary.wiley.com/doi/10.1002/nem.2173). 
 
 
 
