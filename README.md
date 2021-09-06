@@ -108,7 +108,7 @@ http://<host_name>/api/v1/manager
 - Request Example
 
   ```bash
-  curl -XPOST -F "x=30.0" -F "y=30.0" "http://localhost:8000/api/v1/manager/user/post/?application_id=1"
+  curl -XPOST -F "x=30.0" -F "y=30.0" "http://localhost:8080/api/v1/manager/user/post/?application_id=1"
   ```
 
 
@@ -145,7 +145,7 @@ Position data of the client is updated and new home server is allocated accordin
 - Request Example
 
   ```bash
-  curl -XPUT -F "x=70.0" -F "y=70.0" "http://localhost:8000/api/v1/manager/user/update_location/?application_id=1&client_id=1149989"
+  curl -XPUT -F "x=70.0" -F "y=70.0" "http://localhost:8080/api/v1/manager/user/update_location/?application_id=1&client_id=1149989"
   ```
 
   
@@ -182,7 +182,7 @@ Position data of the client is updated and new home server is allocated accordin
 - Request Example
 
   ```bash
-  curl -XPOST -F "x=30.0" -F "y=30.0" -F "capacity=640" "http://localhost:8000/api/v1/manager/server/post/?application_id=1"
+  curl -XPOST -F "x=30.0" -F "y=30.0" -F "capacity=640" "http://localhost:8080/api/v1/manager/server/post/?application_id=1"
   ```
 
 
