@@ -26,7 +26,7 @@ SECRET_KEY = 'secret'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "172.17.0.1"]
+ALLOWED_HOSTS = ["127.0.0.1", "172.17.0.1", "localhost"]
 
 host_ip = os.environ.get("HOST_IP")
 if host_ip != None:
