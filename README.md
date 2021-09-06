@@ -14,7 +14,7 @@ reloc assigns static sensors to edge servers to minimize delivery delay while sa
 
 The delivery delay is calculated based on the following equation [1]:
 
-![Screenshot from 2021-09-06 11-47-31](/home/tomoya/Pictures/Screenshot from 2021-09-06 11-47-31.png)
+<img src="https://reloc.s3.eu-north-1.amazonaws.com/equation.png">
 
 Briefly, the delivery delay increases when
 
@@ -62,17 +62,18 @@ https://github.com/camsenec/reloc-evaluator
 
 ### Sensor distribution
 
-Sensors connected by gray line are publishers for a same topic.<img src="https://reloc.s3.eu-north-1.amazonaws.com/client_distribution.png">
+Sensors connected by gray line are publishers for a same topic.
+<div align="center"><img width=700px src="https://reloc.s3.eu-north-1.amazonaws.com/client_distribution.png"></div>
 
 
 
 ### Home server assignment and resource usage
 
-<img src="https://reloc.s3.eu-north-1.amazonaws.com/used.png">
+<div align="center"><img width=700px src="https://reloc.s3.eu-north-1.amazonaws.com/used.png"></div>
 
 
 
-<img src="https://reloc.s3.eu-north-1.amazonaws.com/cp.png">
+<div align="center"><img width=700px src="https://reloc.s3.eu-north-1.amazonaws.com/cp.png"></div>
 
 
 
