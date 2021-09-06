@@ -24,7 +24,7 @@ MEDIA_URL = '/simulation/'
 SECRET_KEY = 'secret'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["127.0.0.1", "172.17.0.1", "localhost"]
 
