@@ -12,7 +12,7 @@ reloc assigns static sensors to edge servers to minimize delivery delay while sa
 
 
 
-The delivery delay is calculated based on the following equation [1]:
+The delivery delay is calculated based on the following formula [1]:
 
 <img src="https://reloc.s3.eu-north-1.amazonaws.com/equation.png">
 
