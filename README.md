@@ -92,6 +92,44 @@ Sensors connected by gray line are publishers for a same topic.
 http://<host_name>/api/v1/manager
 
 
+## Edge Server
+
+### [POST] (server /post) Register an edge server
+
++ Attributes (multipart/formdata)
+
+  + `x` :  x coordinate of server position (latitude)
+  + `y` :  y coordinate of server position (longitude)
+  + `capacity`: The cache capacity given to the application identified by the `applicaiton_id` field
+
+- Parameters (URL parameter)
+  - `application_id` : id of application the client who send request is using.
+
+- Request Example
+
+  ```bash
+  curl -XPOST -F "x=30.0" -F "y=30.0" -F "capacity=640" "http://localhost:8080/api/v1/manager/server/post/?application_id=1"
+  ```
+
+
++ Response (Code 200)
+
+  + Example value
+
+    ```json
+    {
+      "application_id": 1,
+      "server_id": 18,
+      "x": 30,
+      "y": 30,
+      "capacity": 640,
+      "used": 0,
+      "connection": 0,
+      "cp": 0,
+      "cluster_id": 1
+    }
+    ```
+    
 
 ## Client
 
@@ -163,47 +201,6 @@ Position data of the client is updated and new home server is allocated accordin
      "home" : 45
     }
     ```
-
-
-
-## Edge Server
-
-### [POST] (server /post) Register an edge server
-
-+ Attributes (multipart/formdata)
-
-  + `x` :  x coordinate of server position (latitude)
-  + `y` :  y coordinate of server position (longitude)
-  + `capacity`: The cache capacity given to the application identified by the `applicaiton_id` field
-
-- Parameters (URL parameter)
-  - `application_id` : id of application the client who send request is using.
-
-- Request Example
-
-  ```bash
-  curl -XPOST -F "x=30.0" -F "y=30.0" -F "capacity=640" "http://localhost:8080/api/v1/manager/server/post/?application_id=1"
-  ```
-
-
-+ Response (Code 200)
-
-  + Example value
-
-    ```json
-    {
-      "application_id": 1,
-      "server_id": 18,
-      "x": 30,
-      "y": 30,
-      "capacity": 640,
-      "used": 0,
-      "connection": 0,
-      "cp": 0,
-      "cluster_id": 1
-    }
-    ```
-    
 
 
 
