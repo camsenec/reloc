@@ -18,8 +18,8 @@ The delivery delay is calculated based on the following formula [1]:
 
 Briefly, the delivery delay increases when
 
-- The mentioned resources on edge servers, namely memory and CPU is exhaused
-- Clients who has relation of publish/subscribe is assigned to distant edge servers
+- The mentioned resources on edge servers, namely memory and CPU are exhaused
+- Clients who has relation of publish/subscribe are assigned to distant edge servers
 
 
 
